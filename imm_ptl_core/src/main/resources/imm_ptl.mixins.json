@@ -4,7 +4,6 @@
   "compatibilityLevel": "JAVA_17",
   "plugin": "qouteall.imm_ptl.core.IPMixinPlugin",
   "mixins": [
-    "common.IERegistryLoader",
     "common.MixinClipContext",
     "common.MixinCommands",
     "common.MixinConnection_Debug",
@@ -52,7 +51,8 @@
     "common.position_sync.MixinServerboundMovePlayerPacketPosRot",
     "common.position_sync.MixinServerboundMovePlayerPacketRot",
     "common.position_sync.MixinServerboundMovePlayerPacketStatusOnly",
-    "common.position_sync.MixinServerGamePacketListenerImpl"
+    "common.position_sync.MixinServerGamePacketListenerImpl",
+    "common.registry.IERegistryDataLoader"
   ],
   "client": [
     "client.MixinClientConnection",
@@ -60,7 +60,6 @@
     "client.MixinDebugScreenOverlay",
     "client.MixinGlDebug",
     "client.MixinLivingEntity_C",
-    "client.MixinMatrix4f",
     "client.MixinMinecraft",
     "client.block_manipulation.MixinGameRenderer_B",
     "client.block_manipulation.MixinMinecraft_B",
@@ -73,6 +72,7 @@
     "client.render.MixinBlockEntityRenderDispatcher",
     "client.render.MixinCamera",
     "client.render.MixinEntityRenderDispatcher",
+    "client.render.MixinFrustum_FixDeadLoop",
     "client.render.MixinGameRenderer",
     "client.render.MixinGlStateManager",
     "client.render.MixinLevelRenderer",
@@ -86,7 +86,6 @@
     "client.render.MixinShaderInstanceForIris",
     "client.render.framebuffer.MixinMainTarget",
     "client.render.framebuffer.MixinRenderTarget",
-    "client.render.MixinFrustum_FixDeadLoop",
     "client.render.isometric.MixinGameRenderer_Isometric",
     "client.render.optimization.IEChunkCompileTask",
     "client.render.optimization.MixinChunkRenderDispatcher_Optimization",

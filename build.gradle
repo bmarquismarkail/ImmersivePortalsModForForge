@@ -17,6 +17,7 @@ allprojects {
     apply plugin: 'org.parchmentmc.librarian.forgegradle'
     apply plugin: 'org.spongepowered.mixin'
     apply plugin: 'maven-publish'
+}
 
     sourceCompatibility = 17
     targetCompatibility = 17
@@ -29,10 +30,21 @@ allprojects {
 
         maven { url = 'https://dist.creeper.host/Sponge/maven' }
 
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+
+    version = rootProject.mod_version
+
+    repositories {
+        mavenCentral()
+        mavenLocal()
         maven {
             name "tterrag maven"
             url "https://maven.tterrag.com/"
         }
+        maven { url "https://maven.shedaniel.me/" }
+
+        // for sodium
         maven {
             url "https://cursemaven.com"
             content {
@@ -121,6 +133,7 @@ minecraft {
                     source sourceSets.main
                 }
             }
+            parchment("org.parchmentmc.data:parchment-1.18.2:2022.06.26@zip")
         }
         server {
             workingDirectory project.file('run')
@@ -135,6 +148,22 @@ minecraft {
             }
         }
     }
+
+    processResources {
+        inputs.property "version", project.version
+
+        filesMatching("fabric.mod.json") {
+            expand "version": project.version
+        }
+    }
+
+    java {
+        // Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
+        // if it is present.
+        // If you remove this line, sources will not be generated.
+        withSourcesJar()
+    }
+
 }
 
 dependencies {
@@ -164,6 +193,7 @@ jar {
         ])
     }
     from "LICENSE"
+}
 
     archiveFileName = "${project.archives_base_name}-${project.mod_version}-mc${project.minecraft_version}-forge.jar"
 }
@@ -191,11 +221,78 @@ publishing {
         maven {
             url "file:///${project.projectDir}/mcmodsrepo"
         }
+
+        String name = "testmod:${baseName}:${version}"
+
+        System.out.println("Found test mod: " + it.name.replace(".jar", "") + " -> " + name)
+
+        modImplementation name
+//        modCompileOnly name
+//        modRuntime name
+    }
+
+    // for test with create
+//    modImplementation(include("io.github.fabricators_of_create:Porting-Lib:${project.port_lib_version}+${project.minecraft_version}.${project.port_lib_hash}"))
+//    modImplementation(include("me.alphamode:ForgeTags:${project.forge_tags_version}"))
+//    modImplementation(include("com.electronwill.night-config:core:${project.night_config_core_version}"))
+//    modImplementation(include("com.electronwill.night-config:toml:${project.night_config_toml_version}"))
+//    modImplementation(include("curse.maven:forge-config-api-port-fabric-547434:${project.config_api_id}")) { transitive = false }
+//    modImplementation(include("com.tterrag.registrate:Registrate:${project.registrate_version}"))
+//    modImplementation(include("com.jozufozu.flywheel:Flywheel-Fabric:${project.flywheel_version}"))
+//    modImplementation(include("com.jamieswhiteshirt:reach-entity-attributes:${project.reach_entity_attributes_version}"))
+//    modImplementation(include("dev.cafeteria:fake-player-api:${project.fake_player_api_version}"))
+//    modImplementation(include("io.github.tropheusj:milk-lib:${project.milk_lib_version}"))
+//    modImplementation(include("me.luligabi:NoIndium:${project.no_indium_version}"))
+//
+//    modImplementation("com.simibubi:Create:mc1.18.2_v0.4.1")
+
+    // twilight forest
+//    modImplementation("com.github.teamtwilight.twilightforest:twilightforest-fabric:4.2"){
+//        exclude(group:"com.terraformersmc")
+//    }
+}
+
+dependencies {
+    subprojects.each {
+        implementation project(path: ":${it.name}", configuration: "namedElements")
+        include project("${it.name}:")
     }
 }
+
+// miscellaneous
 
 task printClasspath {
     doLast {
         configurations.compileClasspath.each { println "\""+ (it.toString().replace("\\","/")) + "\"," }
     }
 }
+
+task additionalCopy(type: Copy) {
+    dependsOn(remapJar)
+    from file("${project.buildDir}/libs/$archivesBaseName-${version}-mc${project.minecraft_version}-fabric.jar")
+    into file("${project.buildDir}/to_upload")
+    rename { n -> "$archivesBaseName-${version}-mc${project.minecraft_version}-fabric.jar" }
+}
+
+
+// modrinth
+
+modrinth {
+    token = System.getenv("MODRINTH")
+    // This is the default. Remember to have the MODRINTH_TOKEN environment variable set or else this will fail, or set it to whatever you want - just make sure it stays private!
+    projectId = "zJpHMkdD"
+    versionNumber = "${project.version}-${project.minecraft_version}"
+    // You don't need to set this manually. Will fail if Modrinth has this version already
+    versionType = "release" // This is the default -- can also be `beta` or `alpha`
+    uploadFile = remapJar
+    gameVersions = ["${project.minecraft_version}"] // Must be an array, even with only one version
+    loaders = ["fabric"] // Must also be an array - no need to specify this if you're using Loom or ForgeGradle
+    dependencies { // A special DSL for creating dependencies
+        // scope.type
+        // The scope can be `required`, `optional`, or `incompatible`
+        // The type can either be `project` or `version`
+        required.project "P7dR8mSH" // Creates a new required dependency on Fabric API
+    }
+}
+
+// Enable ZGC: -XX:+UseZGC

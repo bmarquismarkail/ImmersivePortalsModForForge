@@ -16,6 +16,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Matrix4f;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.api.PortalAPI;
@@ -149,12 +150,12 @@ public class ExampleGuiPortalRendering {
             
             // Determine the camera transformation
             Matrix4f cameraTransformation = new Matrix4f();
-            cameraTransformation.setIdentity();
-            cameraTransformation.multiply(
+            cameraTransformation.identity();
+            cameraTransformation.mul(
                 DQuaternion.rotationByDegrees(
                     new Vec3(1, 1, 1).normalize(),
                     t1 * 360
-                ).toMcQuaternion()
+                ).toMatrix()
             );
             
             // Determine the camera position

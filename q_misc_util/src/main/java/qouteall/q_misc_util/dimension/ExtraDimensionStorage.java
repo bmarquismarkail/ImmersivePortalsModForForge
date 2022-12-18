@@ -11,6 +11,7 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -19,14 +20,12 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.levelgen.WorldGenSettings;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraft.world.level.levelgen.WorldOptions;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.Validate;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.api.DimensionAPI;
-import qouteall.q_misc_util.forge.events.ServerDimensionsLoadEvent;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -38,22 +37,17 @@ import java.nio.file.Path;
 public class ExtraDimensionStorage {
     
     public static void init() {
-        MinecraftForge.EVENT_BUS.register(ExtraDimensionStorage.class);
-//        DimensionAPI.serverDimensionsLoadEvent.register( //TODO Reimplement this !DONE
-//            ExtraDimensionStorage::loadExtraDimensions
-//        );
-    }
-
-    @SubscribeEvent
-    public static void serverDimensionsLoad(ServerDimensionsLoadEvent event) {
-        loadExtraDimensions(event.generatorOptions, event.registryManager);
+        DimensionAPI.serverDimensionsLoadEvent.register(
+            ExtraDimensionStorage::loadExtraDimensions
+        );
     }
     
-    private static void loadExtraDimensions(WorldGenSettings worldGenSettings, RegistryAccess registryAccess) {
+    private static void loadExtraDimensions(WorldOptions worldOptions, RegistryAccess registryAccess) {
         MinecraftServer server = MiscHelper.getServer();
         if (server != null && server.isRunning()) {
             RegistryOps<JsonElement> ops = RegistryOps.create(JsonOps.INSTANCE, registryAccess);
-            Registry<LevelStem> dimensionRegistry = worldGenSettings.dimensions();
+    
+            Registry<LevelStem> dimensionRegistry = registryAccess.registryOrThrow(Registries.LEVEL_STEM);
             
             Path extraStorageFolderPath = getExtraStorageFolderPath();
             File[] subFiles = extraStorageFolderPath.toFile().listFiles();
@@ -96,7 +90,7 @@ public class ExtraDimensionStorage {
                 DimensionAPI.addDimension(
                     dimensionRegistry,
                     id,
-                    levelStem.typeHolder(),
+                    levelStem.type(),
                     levelStem.generator()
                 );
             }

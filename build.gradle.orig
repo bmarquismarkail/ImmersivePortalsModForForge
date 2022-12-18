@@ -1,0 +1,253 @@
+buildscript {
+    repositories {
+        maven { url = 'https://maven.minecraftforge.net' }
+        maven { url = 'https://maven.parchmentmc.org' }
+        mavenCentral()
+    }
+    dependencies {
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.+', changing: true
+        classpath 'org.spongepowered:mixingradle:0.7.+' // MixinGradle
+        classpath 'org.parchmentmc:librarian:1.+'
+    }
+}
+
+allprojects {
+    apply plugin: 'java-library'
+    apply plugin: 'net.minecraftforge.gradle'
+    apply plugin: 'org.parchmentmc.librarian.forgegradle'
+    apply plugin: 'org.spongepowered.mixin'
+    apply plugin: 'maven-publish'
+
+    sourceCompatibility = 17
+    targetCompatibility = 17
+
+    version = project.mod_version
+
+    repositories {
+        maven { url = 'https://files.minecraftforge.net/maven' }
+        mavenCentral()
+
+        maven { url = 'https://dist.creeper.host/Sponge/maven' }
+
+        maven {
+            name "tterrag maven"
+            url "https://maven.tterrag.com/"
+        }
+        maven {
+            url "https://cursemaven.com"
+            content {
+                includeGroup "curse.maven"
+            }
+        }
+        repositories {
+            maven { url "https://maven.shedaniel.me/" }
+        }
+        maven {
+            name "theillusivec4"
+            url = "https://maven.theillusivec4.top/"
+        }
+        //maven{url="https://minecraft.curseforge.com/api/maven/"}
+        maven {
+            url = "https://jitpack.io"
+        }
+        maven {
+            url = "https://modmaven.dev/"
+        }
+
+        flatDir {
+            dirs 'deps'
+        }
+
+    }
+
+    dependencies {
+        minecraft "net.minecraftforge:forge:${project.minecraft_version}-${project.loader_version}"
+        annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+
+        // Pehkui
+        api fg.deobf("com.github.Virtuoel:Pehkui:${project.pehkui_version}")
+        // Twilight Forest
+        //api fg.deobf("teamtwilight:twilightforest:${project.twilightforest_version}:universal")
+        api fg.deobf("curse.maven:twilightforest-227639:${project.twilightforest_fileid}")
+        // Flywheel
+        compileOnly fg.deobf("com.jozufozu.flywheel:flywheel-forge-1.19.2:${project.flywheel_version}")
+        // Rubidium
+        api fg.deobf("curse.maven:rubidium-574856:${project.rubidium_fileid}")
+        // Oculus
+        api fg.deobf("curse.maven:oculus-581495:${project.oculus_fileid}")
+        // Curios
+        runtimeOnly fg.deobf("top.theillusivec4.curios:curios-forge:${project.curios_version}")
+        compileOnly fg.deobf("top.theillusivec4.curios:curios-forge:${project.curios_version}:api")
+        // Tinkers Construct
+            //api fg.deobf("curse.maven:tconstruct-74072:${project.tconstruct_fileid}")
+            //api fg.deobf("curse.maven:mantle-74924:${project.mantle_fileid}")
+        // Serene Seasons (Disabled: Incompatible unless compat render mode)
+            // api fg.deobf("curse.maven:sereneseasons-291874:${project.sereneseasons_fileid}")
+        // Mekanism
+        api fg.deobf("curse.maven:mekanism-268560:${project.mekanism_fileid}")
+        // Immersive Engineering
+        api fg.deobf("curse.maven:immersiveengineering-231951:${project.immersiveengineering_fileid}")
+
+        compileOnly 'com.demonwav.mcdev:annotations:1.0'
+
+        // Cloth config
+        api(fg.deobf("me.shedaniel.cloth:cloth-config-forge:${project.cloth_config}"))
+    }
+
+    minecraft {
+        mappings channel: 'parchment', version: "${project.mapping_version}-${project.minecraft_version}"
+        accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
+    }
+
+    tasks.withType(JavaCompile).configureEach {
+        options.encoding = "UTF-8"
+        it.options.release = 17
+    }
+}
+
+archivesBaseName = project.archives_base_name
+group = project.maven_group
+
+minecraft {
+    runs {
+        client {
+            workingDirectory project.file('run')
+            property 'forge.logging.console.level', 'debug'
+            property 'mixin.env.remapRefMap', 'true'
+            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
+            taskName 'Client-1.19'
+            mods {
+                examplemod {
+                    source sourceSets.main
+                }
+            }
+        }
+        server {
+            workingDirectory project.file('run')
+            property 'forge.logging.console.level', 'debug'
+            property 'mixin.env.remapRefMap', 'true'
+            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
+            taskName 'Server-1.19'
+            mods {
+                examplemod {
+                    source sourceSets.main
+                }
+            }
+        }
+<<<<<<< HEAD
+=======
+
+        //For Nullable
+        compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
+
+        modImplementation("me.shedaniel.cloth:cloth-config-fabric:${cloth_config_version}") {
+            exclude(group: "net.fabricmc.fabric-api")
+        }
+        modCompileOnly "maven.modrinth:modmenu:${modmenu_version}"
+
+        modCompileOnly("com.github.Virtuoel:Pehkui:3.6.0", {
+            exclude group: "net.fabricmc.fabric-api"
+        })
+
+        modImplementation "maven.modrinth:sodium:mc1.19.3-0.4.6"
+
+        modCompileOnly 'maven.modrinth:iris:1.19.3-v1.4.6'
+//        implementation "org.anarres:jcpp:1.4.14" // for iris
+//        implementation 'io.github.douira:glsl-transformer:1.0.1' // for iris
+//        implementation 'org.antlr:antlr4-runtime:4.10.1' // for iris
+
+        modCompileOnly("maven.modrinth:gravity-api:0.7.18+fabric") {
+            transitive = false
+            exclude(group: "net.fabricmc.fabric-api")
+        }
+        modCompileOnly "dev.onyxstudios.cardinal-components-api:cardinal-components-base:4.1.4"
+        modCompileOnly "dev.onyxstudios.cardinal-components-api:cardinal-components-entity:4.1.4"
+    }
+
+    processResources {
+        inputs.property "version", project.version
+
+        filesMatching("fabric.mod.json") {
+            expand "version": project.version
+        }
+    }
+
+    java {
+        // Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
+        // if it is present.
+        // If you remove this line, sources will not be generated.
+        withSourcesJar()
+    }
+
+}
+
+// change the output file name
+remapJar {
+    afterEvaluate {
+        archiveFileName = "${project.archives_base_name}-${project.mod_version}-mc${project.minecraft_version}-fabric.jar"
+>>>>>>> fabric_home/1.19
+    }
+}
+
+dependencies {
+    compileOnly project(":imm_ptl_core")
+    compileOnly project(":q_misc_util")
+}
+tasks.withType(JavaCompile) {
+    source(project(":imm_ptl_core").sourceSets.main.allSource)
+    source(project(":q_misc_util").sourceSets.main.allSource)
+}
+processResources {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    from project(":imm_ptl_core").sourceSets.main.resources
+    from project(":q_misc_util").sourceSets.main.resources
+}
+
+jar {
+    manifest {
+        attributes([
+                "Specification-Title"     : "Immersive Portals",
+                "Specification-Vendor"    : "qouteall",
+                "Specification-Version"   : "1", // We are version 1 of ourselves
+                "Implementation-Title"    : project.name,
+                "Implementation-Version"  : "${version}",
+                "Implementation-Vendor"   : "qouteall, Nick1st",
+                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+        ])
+    }
+    from "LICENSE"
+
+    archiveFileName = "${project.archives_base_name}-${project.mod_version}-mc${project.minecraft_version}-forge.jar"
+}
+mixin {
+    add sourceSets.main, 'mixins.imm_ptl.refmap.json'
+    config 'imm_ptl.mixins.json'
+    config 'imm_ptl_peripheral.mixins.json'
+    //config 'q_misc_util.mixins.json'
+    debug = false
+}
+
+// Example configuration to allow publishing using the maven-publish task
+// This is the preferred method to reobfuscate your jar file
+jar.finalizedBy('reobfJar')
+// However if you are in a multi-project build, dev time needs unobfed jar files, so you can delay the obfuscation until publishing by doing
+//publish.dependsOn('reobfJar')
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifact jar
+        }
+    }
+    repositories {
+        maven {
+            url "file:///${project.projectDir}/mcmodsrepo"
+        }
+    }
+}
+
+task printClasspath {
+    doLast {
+        configurations.compileClasspath.each { println "\""+ (it.toString().replace("\\","/")) + "\"," }
+    }
+}
