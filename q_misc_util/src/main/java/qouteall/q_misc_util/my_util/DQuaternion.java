@@ -7,16 +7,15 @@ import net.minecraft.util.Tuple;
 import net.minecraft.world.phys.Vec3;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.joml.Matrix4f;
-import org.joml.Quaternionf;
-import qouteall.q_misc_util.Helper;
+import com.mojang.math.Quaternion;
+import com.mojang.math.Matrix4f;
 
 import java.util.Objects;
 
 /**
  * Quaternion but in double and immutable.
  * Immutability reduce the chance of having bugs (you have to manually copy everywhere to avoid unintended mutation).
- * Minecraft's quaternion {@link Quaternionf} uses float and is mutable.
+ * Minecraft's quaternion {@link Quaternion} uses float and is mutable.
  */
 public class DQuaternion {
     private static final Logger logger = LogManager.getLogger(DQuaternion.class);
@@ -39,9 +38,9 @@ public class DQuaternion {
     /**
      * Converts from Minecraft's mutable quaternion to immutable DQuaternion
      */
-    public static DQuaternion fromMcQuaternion(Quaternionf quaternion) {
+    public static DQuaternion fromMcQuaternion(Quaternion quaternion) {
         return new DQuaternion(
-            quaternion.x(), quaternion.y(), quaternion.z(), quaternion.w()
+            quaternion.i(), quaternion.j(), quaternion.k(), quaternion.r()
         );
     }
     
@@ -63,14 +62,14 @@ public class DQuaternion {
     /**
      * @return Converts to Minecraft's quaternion
      */
-    public Quaternionf toMcQuaternion() {
-        return new Quaternionf(
+    public Quaternion toMcQuaternion() {
+        return new Quaternion(
             (float) x, (float) y, (float) z, (float) w
         );
     }
     
     public Matrix4f toMatrix() {
-        return new Matrix4f().set(toMcQuaternion());
+        return new Matrix4f(toMcQuaternion());
     }
     
     /**
@@ -218,8 +217,7 @@ public class DQuaternion {
     public static DQuaternion getCameraRotation(double pitch, double yaw) {
         DQuaternion r1 = rotationByDegrees(new Vec3(1, 0, 0), pitch);
         DQuaternion r2 = rotationByDegrees(new Vec3(0, 1, 0), yaw + 180);
-        DQuaternion result = r1.hamiltonProduct(r2);
-        return result;
+        return r1.hamiltonProduct(r2);
     }
     
     // should be the same as the above
