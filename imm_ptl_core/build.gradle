@@ -9,7 +9,7 @@ minecraft {
     accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
 }
 
-tasks.withType(JavaCompile).configureEach {
+tasks.withType(JavaCompile) {
     source(project(":q_misc_util").sourceSets.main.allSource)
 }
 
