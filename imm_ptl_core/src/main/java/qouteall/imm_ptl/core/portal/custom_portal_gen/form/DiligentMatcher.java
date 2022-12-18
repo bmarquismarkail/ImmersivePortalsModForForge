@@ -10,7 +10,7 @@ import net.minecraft.core.Vec3i;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.Validate;
-import org.joml.Matrix3f;
+import com.mojang.math.Matrix3f;
 import qouteall.imm_ptl.core.portal.nether_portal.BlockPortalShape;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.my_util.DQuaternion;
@@ -140,7 +140,7 @@ public class DiligentMatcher {
         
         int nc1 = -c2;
         int nc2 = c1;
-        
+
         BlockPos finalVec = Helper.scale(d1.getNormal(), nc1)
             .offset(Helper.scale(d2.getNormal(), nc2))
             .offset(Helper.scale(axis.getNormal(), ca));
@@ -159,7 +159,7 @@ public class DiligentMatcher {
     public static final List<IntMatrix3> rotationTransformations = Util.make(() -> {
         List<IntMatrix3> basicRotations = Arrays.stream(Direction.values())
             .map(DiligentMatcher::getRotation90)
-            .collect(Collectors.toList());
+            .toList();
         
         IntMatrix3 identity = IntMatrix3.getIdentity();
         
@@ -249,7 +249,7 @@ public class DiligentMatcher {
     
     public static BlockPortalShape rotateShape(BlockPortalShape shape, IntMatrix3 t) {
         Set<BlockPos> newArea = shape.area.stream().map(
-            b -> t.transform(b)
+                t::transform
         ).collect(Collectors.toSet());
         Direction.Axis newAxis = t.transformDirection(
             Direction.fromAxisAndDirection(shape.axis, Direction.AxisDirection.POSITIVE)
@@ -272,7 +272,7 @@ public class DiligentMatcher {
             sideLenList.add(b);
         }
         
-        return sideLenList.stream().reduce((a, b) -> IntMath.gcd(a, b)).get();
+        return sideLenList.stream().reduce(IntMath::gcd).get();
     }
     
     public static BlockPortalShape shrinkShapeBy(BlockPortalShape shape, int div) {
@@ -344,7 +344,7 @@ public class DiligentMatcher {
             axis
         );
         
-        expanded.stream().forEach(b -> area.remove(b));
+        expanded.stream().forEach(area::remove);
         
         return expanded;
     }
