@@ -1,7 +1,6 @@
 package qouteall.q_misc_util.dimension;
 
 import net.minecraft.core.Registry;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.IntTag;
 import net.minecraft.nbt.StringTag;
@@ -54,7 +53,7 @@ public class DimId {
     // that map can only grow but cannot be cleaned.
     // so a malicious client may make the server memory leak by that
     public static ResourceKey<Level> idToKey(ResourceLocation identifier) {
-        return ResourceKey.create(Registries.DIMENSION, identifier);
+        return ResourceKey.create(Registry.DIMENSION_REGISTRY, identifier);
     }
     
     public static ResourceKey<Level> idToKey(String str) {
