@@ -19,9 +19,9 @@ import qouteall.imm_ptl.core.portal.Portal;
 public abstract class MixinServerPlayer_ContainerGUI extends Player implements IEServerPlayerEntity {
     
     private boolean immptl_overrideDistance = false;
-    
-    public MixinServerPlayer_ContainerGUI(Level level, BlockPos blockPos, float f, GameProfile gameProfile) {
-        super(level, blockPos, f, gameProfile);
+
+    public MixinServerPlayer_ContainerGUI(Level level, BlockPos blockPos, float f, GameProfile gameProfile, @Nullable ProfilePublicKey profilePublicKey) {
+        super(level, blockPos, f, gameProfile, profilePublicKey);
     }
     
     @Redirect(

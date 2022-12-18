@@ -1,15 +1,8 @@
 package qouteall.imm_ptl.peripheral.alternate_dimension;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Maps;
-import com.mojang.serialization.Codec;
 import net.minecraft.core.Holder;
-import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.data.worldgen.SurfaceRuleData;
-import net.minecraft.data.worldgen.TerrainProvider;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
@@ -17,18 +10,13 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biomes;
-import net.minecraft.world.level.biome.MultiNoiseBiomeSource;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.levelgen.FlatLevelSource;
-import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
 import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
-import net.minecraft.world.level.levelgen.NoiseSettings;
 import net.minecraft.world.level.levelgen.WorldGenSettings;
-import net.minecraft.world.level.levelgen.WorldOptions;
 import net.minecraft.world.level.levelgen.flat.FlatLayerInfo;
 import net.minecraft.world.level.levelgen.flat.FlatLevelGeneratorSettings;
 import net.minecraft.world.level.levelgen.structure.StructureSet;
@@ -38,17 +26,13 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.ducks.IEWorld;
-import qouteall.imm_ptl.peripheral.mixin.common.alternate_dimension.IENoiseGeneratorSettings;
-import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.api.DimensionAPI;
 import qouteall.q_misc_util.forge.events.ServerDimensionsLoadEvent;
 
 import javax.annotation.Nullable;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class AlternateDimensions {
     
@@ -64,91 +48,95 @@ public class AlternateDimensions {
     }
 
     private static void initializeAlternateDimensions(
-        WorldOptions worldOptions, RegistryAccess registryManager
+            WorldGenSettings generatorOptions, RegistryAccess registryManager
     ) {
-        Registry<LevelStem> registry = registryManager.registryOrThrow(Registries.LEVEL_STEM);
-    
-        long seed = worldOptions.seed();
+        Registry<LevelStem> registry = generatorOptions.dimensions();
+        long seed = generatorOptions.seed();
         if (!IPGlobal.enableAlternateDimensions) {
             return;
         }
-        
+
         Holder<DimensionType> surfaceTypeHolder = registryManager
-            .registryOrThrow(Registries.DIMENSION_TYPE)
-            .getHolder(ResourceKey.create(
-                Registries.DIMENSION_TYPE,
-                new ResourceLocation("immersive_portals:surface_type")
-            ))
-            .orElseThrow(() -> new RuntimeException("Missing immersive_portals:surface_type"));
-        
+                .registryOrThrow(Registry.DIMENSION_TYPE_REGISTRY)
+                .getHolder(ResourceKey.create(
+                        Registry.DIMENSION_TYPE_REGISTRY,
+                        new ResourceLocation("immersive_portals:surface_type")
+                ))
+                .orElseThrow(() -> new RuntimeException("Missing immersive_portals:surface_type"));
+
         Holder<DimensionType> surfaceTypeBrightHolder = registryManager
-            .registryOrThrow(Registries.DIMENSION_TYPE)
-            .getHolder(ResourceKey.create(
-                Registries.DIMENSION_TYPE,
-                new ResourceLocation("immersive_portals:surface_type_bright")
-            ))
-            .orElseThrow(() -> new RuntimeException("Missing immersive_portals:surface_type_bright"));
-        
+                .registryOrThrow(Registry.DIMENSION_TYPE_REGISTRY)
+                .getHolder(ResourceKey.create(
+                        Registry.DIMENSION_TYPE_REGISTRY,
+                        new ResourceLocation("immersive_portals:surface_type_bright")
+                ))
+                .orElseThrow(() -> new RuntimeException("Missing immersive_portals:surface_type_bright"));
+
         DimensionAPI.addDimension(
-            registry,
-            alternate1.location(),
-            surfaceTypeBrightHolder,
-            createSkylandGenerator(registryManager, seed)
+                registry,
+                alternate1.location(),
+                surfaceTypeBrightHolder,
+                createSkylandGenerator(registryManager, seed)
         );
-        
+        DimensionAPI.markDimensionNonPersistent(alternate1.location());
+
         DimensionAPI.addDimension(
-            registry,
-            alternate2.location(),
-            surfaceTypeHolder,
-            createSkylandGenerator(registryManager, seed + 1) // different seed
+                registry,
+                alternate2.location(),
+                surfaceTypeHolder,
+                createSkylandGenerator(registryManager, seed + 1) // different seed
         );
-        
+        DimensionAPI.markDimensionNonPersistent(alternate2.location());
+
         DimensionAPI.addDimension(
-            registry,
-            alternate3.location(),
-            surfaceTypeHolder,
-            createErrorTerrainGenerator(seed + 1, registryManager)
+                registry,
+                alternate3.location(),
+                surfaceTypeHolder,
+                createErrorTerrainGenerator(seed + 1, registryManager)
         );
-        
+        DimensionAPI.markDimensionNonPersistent(alternate3.location());
+
         DimensionAPI.addDimension(
-            registry,
-            alternate4.location(),
-            surfaceTypeHolder,
-            createErrorTerrainGenerator(seed, registryManager)
+                registry,
+                alternate4.location(),
+                surfaceTypeHolder,
+                createErrorTerrainGenerator(seed, registryManager)
         );
-        
+        DimensionAPI.markDimensionNonPersistent(alternate4.location());
+
         DimensionAPI.addDimension(
-            registry,
-            alternate5.location(),
-            surfaceTypeHolder,
-            createVoidGenerator(registryManager)
+                registry,
+                alternate5.location(),
+                surfaceTypeHolder,
+                createVoidGenerator(registryManager)
         );
+        DimensionAPI.markDimensionNonPersistent(alternate5.location());
     }
-    
-    
+
+
     public static final ResourceKey<DimensionType> surfaceType = ResourceKey.create(
-        Registries.DIMENSION_TYPE,
-        new ResourceLocation("immersive_portals:surface_type")
+            Registry.DIMENSION_TYPE_REGISTRY,
+            new ResourceLocation("immersive_portals:surface_type")
     );
     public static final ResourceKey<Level> alternate1 = ResourceKey.create(
-        Registries.DIMENSION,
-        new ResourceLocation("immersive_portals:alternate1")
+            Registry.DIMENSION_REGISTRY,
+            new ResourceLocation("immersive_portals:alternate1")
     );
     public static final ResourceKey<Level> alternate2 = ResourceKey.create(
-        Registries.DIMENSION,
-        new ResourceLocation("immersive_portals:alternate2")
+            Registry.DIMENSION_REGISTRY,
+            new ResourceLocation("immersive_portals:alternate2")
     );
     public static final ResourceKey<Level> alternate3 = ResourceKey.create(
-        Registries.DIMENSION,
-        new ResourceLocation("immersive_portals:alternate3")
+            Registry.DIMENSION_REGISTRY,
+            new ResourceLocation("immersive_portals:alternate3")
     );
     public static final ResourceKey<Level> alternate4 = ResourceKey.create(
-        Registries.DIMENSION,
-        new ResourceLocation("immersive_portals:alternate4")
+            Registry.DIMENSION_REGISTRY,
+            new ResourceLocation("immersive_portals:alternate4")
     );
     public static final ResourceKey<Level> alternate5 = ResourceKey.create(
-        Registries.DIMENSION,
-        new ResourceLocation("immersive_portals:alternate5")
+            Registry.DIMENSION_REGISTRY,
+            new ResourceLocation("immersive_portals:alternate5")
     );
     
     public static boolean isAlternateDimension(Level world) {
@@ -169,41 +157,42 @@ public class AlternateDimensions {
             overworld.getThunderLevel(1), overworld.getThunderLevel(1)
         );
     }
-    
+
     public static ChunkGenerator createSkylandGenerator(RegistryAccess rm, long seed) {
+        Registry<Biome> biomeRegistry = rm.registryOrThrow(Registry.BIOME_REGISTRY);
+        Registry<NoiseGeneratorSettings> noiseGeneratorSettingsRegistry = rm.registryOrThrow(Registry.NOISE_GENERATOR_SETTINGS_REGISTRY);
+        Registry<StructureSet> structureSets = rm.registryOrThrow(Registry.STRUCTURE_SET_REGISTRY);
+        Registry<NormalNoise.NoiseParameters> noiseRegistry = rm.registryOrThrow(Registry.NOISE_REGISTRY);
+
         return NormalSkylandGenerator.create(
-            rm.registryOrThrow(Registries.BIOME).asLookup(),
-            rm.registryOrThrow(Registries.DENSITY_FUNCTION).asLookup(),
-            rm.registryOrThrow(Registries.NOISE).asLookup(),
-            rm.registryOrThrow(Registries.NOISE_SETTINGS).asLookup(),
-            seed
+                rm.registryOrThrow(Registry.STRUCTURE_SET_REGISTRY),
+                rm.registryOrThrow(Registry.BIOME_REGISTRY),
+                rm.registryOrThrow(Registry.NOISE_REGISTRY),
+                rm.registryOrThrow(Registry.NOISE_GENERATOR_SETTINGS_REGISTRY),
+                seed
         );
     }
-    
+
     public static ChunkGenerator createErrorTerrainGenerator(long seed, RegistryAccess rm) {
         return ErrorTerrainGenerator.create(
-            rm.registryOrThrow(Registries.BIOME).asLookup(),
-            rm.registryOrThrow(Registries.NOISE_SETTINGS).asLookup()
+                rm.registryOrThrow(Registry.STRUCTURE_SET_REGISTRY),
+                rm.registryOrThrow(Registry.BIOME_REGISTRY),
+                rm.registryOrThrow(Registry.NOISE_REGISTRY)
         );
     }
-    
+
+
     public static ChunkGenerator createVoidGenerator(RegistryAccess rm) {
-        Registry<Biome> biomeRegistry = rm.registryOrThrow(Registries.BIOME);
+        Registry<Biome> biomeRegistry = rm.registryOrThrow(Registry.BIOME_REGISTRY);
         
-        Registry<StructureSet> structureSets = rm.registryOrThrow(Registries.STRUCTURE_SET);
+        Registry<StructureSet> structureSets = rm.registryOrThrow(Registry.STRUCTURE_SET_REGISTRY);
     
-        Holder.Reference<Biome> plainsHolder = biomeRegistry.getHolderOrThrow(Biomes.PLAINS);
-        
         FlatLevelGeneratorSettings flatChunkGeneratorConfig =
-            new FlatLevelGeneratorSettings(
-                Optional.empty(),
-                plainsHolder,
-                List.of()
-            );
+                new FlatLevelGeneratorSettings(Optional.empty(), biomeRegistry);
         flatChunkGeneratorConfig.getLayersInfo().add(new FlatLayerInfo(1, Blocks.AIR));
         flatChunkGeneratorConfig.updateLayers();
-        
-        return new FlatLevelSource(flatChunkGeneratorConfig);
+
+        return new FlatLevelSource(structureSets, flatChunkGeneratorConfig);
     }
     
     

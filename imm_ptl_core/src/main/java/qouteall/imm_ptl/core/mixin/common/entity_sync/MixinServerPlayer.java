@@ -24,9 +24,9 @@ public abstract class MixinServerPlayer extends Player implements IEServerPlayer
     
     @Shadow
     private boolean isChangingDimension;
-    
-    public MixinServerPlayer(Level level, BlockPos blockPos, float f, GameProfile gameProfile) {
-        super(level, blockPos, f, gameProfile);
+
+    public MixinServerPlayer(Level level, BlockPos blockPos, float f, GameProfile gameProfile, @Nullable ProfilePublicKey profilePublicKey) {
+        super(level, blockPos, f, gameProfile, profilePublicKey);
     }
     
     @Shadow protected abstract void triggerDimensionChangeTriggers(ServerLevel origin);

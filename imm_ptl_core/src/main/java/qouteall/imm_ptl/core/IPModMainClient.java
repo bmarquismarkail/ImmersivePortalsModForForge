@@ -120,7 +120,7 @@ public class IPModMainClient {
     }
     
     public static void init() {
-        IPNetworkingClient.init();
+        //IPNetworkingClient.init();
         
         ClientWorldLoader.init();
         

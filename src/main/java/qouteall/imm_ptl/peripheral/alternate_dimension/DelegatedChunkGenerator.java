@@ -29,7 +29,6 @@ import net.minecraft.world.level.biome.Climate;
 import net.minecraft.world.level.biome.MobSpawnSettings;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkGenerator;
-import net.minecraft.world.level.chunk.ChunkGeneratorStructureState;
 import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
@@ -50,15 +49,16 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 public abstract class DelegatedChunkGenerator extends ChunkGenerator {
-    
+
     protected ChunkGenerator delegate;
     protected BiomeSource biomeSource_;
     
     public DelegatedChunkGenerator(
+            Registry<StructureSet> structureSets,
         BiomeSource biomeSource,
         ChunkGenerator delegate
     ) {
-        super(biomeSource);
+        super(structureSets, Optional.empty(), biomeSource);
         this.delegate = delegate;
         this.biomeSource_ = biomeSource;
     }
@@ -113,19 +113,19 @@ public abstract class DelegatedChunkGenerator extends ChunkGenerator {
         delegate.addDebugScreenInfo(list, randomState, blockPos);
     }
     
+
     @Override
-    public ChunkGeneratorStructureState createState(HolderLookup<StructureSet> holderLookup, RandomState randomState, long l) {
-        return super.createState(holderLookup, randomState, l);
+    public CompletableFuture<ChunkAccess> createBiomes(Registry<Biome> pBiomeRegistry, Executor executor, RandomState randomState, Blender blender, StructureManager structureManager, ChunkAccess chunkAccess) {
+        return super.createBiomes(pBiomeRegistry, executor, randomState, blender, structureManager, chunkAccess);
     }
     
     @Override
-    public CompletableFuture<ChunkAccess> createBiomes(Executor executor, RandomState randomState, Blender blender, StructureManager structureManager, ChunkAccess chunkAccess) {
-        return super.createBiomes(executor, randomState, blender, structureManager, chunkAccess);
-    }
-    
-    @Override
-    public void createStructures(RegistryAccess registryAccess, ChunkGeneratorStructureState chunkGeneratorStructureState, StructureManager structureManager, ChunkAccess chunkAccess, StructureTemplateManager structureTemplateManager) {
-        super.createStructures(registryAccess, chunkGeneratorStructureState, structureManager, chunkAccess, structureTemplateManager);
+    public void createStructures(RegistryAccess registryAccess, RandomState randomState, StructureManager structureManager, ChunkAccess chunkAccess, StructureTemplateManager structureTemplateManager, long seed) {
+        super.createStructures(registryAccess,
+                randomState,
+                structureManager,
+                chunkAccess,
+                structureTemplateManager, seed);
     }
     
     @Override
