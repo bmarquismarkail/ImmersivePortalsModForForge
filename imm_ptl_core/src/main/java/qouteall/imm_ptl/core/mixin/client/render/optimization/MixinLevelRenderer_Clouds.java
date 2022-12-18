@@ -2,12 +2,12 @@ package qouteall.imm_ptl.core.mixin.client.render.optimization;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexBuffer;
+import com.mojang.math.Matrix4f;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.Validate;
-import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -51,15 +51,14 @@ public abstract class MixinLevelRenderer_Clouds {
         at = @At("HEAD")
     )
     private void onBeginRenderClouds(
-        PoseStack matrices, Matrix4f matrix4f,
-        float tickDelta, double cameraX, double cameraY, double cameraZ, CallbackInfo ci
+            PoseStack pPoseStack, Matrix4f pProjectionMatrix, float pPartialTick, double pCamX, double pCamY, double pCamZ, CallbackInfo ci
     ) {
         if (RenderStates.getRenderedPortalNum() == 0) {
             return;
         }
         
         if (IPGlobal.cloudOptimization) {
-            portal_onBeginCloudRendering(tickDelta, cameraX, cameraY, cameraZ);
+            portal_onBeginCloudRendering(pPartialTick, pCamX, pCamY, pCamZ);
         }
     }
     
