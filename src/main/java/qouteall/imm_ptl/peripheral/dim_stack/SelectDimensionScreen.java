@@ -46,9 +46,9 @@ public class SelectDimensionScreen extends Screen {
         }
         
         dimListWidget.update();
-        
-        Button button = Button
-            .builder(
+
+        confirmButton = (Button) addRenderableWidget(new Button(
+                this.width / 2 - 75, this.height - 28, 150, 20,
                 Component.translatable("imm_ptl.confirm_select_dimension"),
                 (buttonWidget) -> {
                     DimEntryWidget selected = dimListWidget.getSelected();
@@ -58,11 +58,7 @@ public class SelectDimensionScreen extends Screen {
                     outerCallback.accept(selected.dimension);
                     Minecraft.getInstance().setScreen(parent);
                 }
-            )
-            .pos(this.width / 2 - 75, this.height - 28)
-            .size(150, 20)
-            .build();
-        confirmButton = (Button) addRenderableWidget(button);
+        ));
         
     }
     

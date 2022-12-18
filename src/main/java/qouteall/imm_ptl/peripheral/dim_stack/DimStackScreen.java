@@ -60,56 +60,63 @@ public class DimStackScreen extends Screen {
         this.parent = parent;
         this.dimensionListSupplier = dimensionListSupplier;
         this.finishCallback = finishCallback;
-        
-        toggleButton = Button.builder(
-            Component.literal("..."),
-            (buttonWidget) -> {
-                setEnabled(!isEnabled);
-            }
-        ).build();
-        
-        loopButton = Button.builder(
-            Component.literal("..."),
-            (buttonWidget) -> {
-                loopEnabled = !loopEnabled;
-                updateButtonText();
-            }
-        ).build();
-        
-        gravityModeButton = Button.builder(
-            Component.literal("..."),
-            (gravityModeButton) -> {
-                gravityTransformEnabled = !gravityTransformEnabled;
-                updateButtonText();
-            }
-        ).build();
-        
-        finishButton = Button.builder(
-            Component.translatable("imm_ptl.finish"),
-            (buttonWidget) -> {
-                Minecraft.getInstance().setScreen(parent);
-                finishCallback.accept(getDimStackInfo());
-            }
-        ).build();
-        addDimensionButton = Button.builder(
-            Component.translatable("imm_ptl.dim_stack_add"),
-            (buttonWidget) -> {
-                onAddEntry();
-            }
-        ).build();
-        removeDimensionButton = Button.builder(
-            Component.translatable("imm_ptl.dim_stack_remove"),
-            (buttonWidget) -> {
-                onRemoveEntry();
-            }
-        ).build();
-        
-        editButton = Button.builder(
-            Component.translatable("imm_ptl.dim_stack_edit"),
-            (buttonWidget) -> {
-                onEditEntry();
-            }
-        ).build();
+
+        toggleButton = new Button(
+                0, 0, 150, 20,
+                Component.literal("..."),
+                (buttonWidget) -> {
+                    setEnabled(!isEnabled);
+                }
+        );
+
+        loopButton = new Button(
+                0, 0, 150, 20,
+                Component.literal("..."),
+                (buttonWidget) -> {
+                    loopEnabled = !loopEnabled;
+                    updateButtonText();
+                }
+        );
+
+        gravityModeButton = new Button(
+                0, 0, 150, 20,
+                Component.literal("..."),
+                (gravityModeButton) -> {
+                    gravityTransformEnabled = !gravityTransformEnabled;
+                    updateButtonText();
+                }
+        );
+
+        finishButton = new Button(
+                0, 0, 72, 20,
+                Component.translatable("imm_ptl.finish"),
+                (buttonWidget) -> {
+                    Minecraft.getInstance().setScreen(parent);
+                    finishCallback.accept(getDimStackInfo());
+                }
+        );
+        addDimensionButton = new Button(
+                0, 0, 72, 20,
+                Component.translatable("imm_ptl.dim_stack_add"),
+                (buttonWidget) -> {
+                    onAddEntry();
+                }
+        );
+        removeDimensionButton = new Button(
+                0, 0, 72, 20,
+                Component.translatable("imm_ptl.dim_stack_remove"),
+                (buttonWidget) -> {
+                    onRemoveEntry();
+                }
+        );
+
+        editButton = new Button(
+                0, 0, 72, 20,
+                Component.translatable("imm_ptl.dim_stack_edit"),
+                (buttonWidget) -> {
+                    onEditEntry();
+                }
+        );
         
         dimListWidget = new DimListWidget(
             width,
@@ -122,13 +129,14 @@ public class DimStackScreen extends Screen {
         );
         
         helpButton = createHelpButton(this);
-    
-        this.setAsPresetButton = Button.builder(
-            Component.translatable("imm_ptl.set_as_dim_stack_default"),
-            button -> {
-                onSetAsDefault();
-            }
-        ).build();
+
+        this.setAsPresetButton = new Button(
+                0, 0, 30, 20,
+                Component.translatable("imm_ptl.set_as_dim_stack_default"),
+                button -> {
+                    onSetAsDefault();
+                }
+        );
         
         loadDimensionStackPreset();
         
@@ -174,16 +182,17 @@ public class DimStackScreen extends Screen {
                 "imm_ptl.dim_stack.gravity_transform_disabled"
         ));
     }
-    
+
     public static Button createHelpButton(Screen parent) {
-        return Button.builder(
-            Component.literal("?"),
-            button -> {
-                CHelper.openLinkConfirmScreen(
-                    parent, "https://qouteall.fun/immptl/wiki/Dimension-Stack"
-                );
-            }
-        ).build();
+        return new Button(
+                0, 0, 30, 20,
+                Component.literal("?"),
+                button -> {
+                    CHelper.openLinkConfirmScreen(
+                            parent, "https://qouteall.fun/immptl/wiki/Dimension-Stack"
+                    );
+                }
+        );
     }
     
     private DimEntryWidget createDimEntryWidget(DimStackEntry entry) {
@@ -236,12 +245,12 @@ public class DimStackScreen extends Screen {
             0, height,
             GuiHelper.blankSpace(5),
             new GuiHelper.LayoutElement(true, 20, (from, to) -> {
-                helpButton.setX(width - 30);
-                helpButton.setY(from);
+                helpButton.x =(width - 30);
+                helpButton.y = (from);
                 helpButton.setWidth(20);
                 
-                setAsPresetButton.setX(width - 125);
-                setAsPresetButton.setY(from);
+                setAsPresetButton.x = (width - 125);
+                setAsPresetButton.y = (from);
                 setAsPresetButton.setWidth(90);
             }),
             new GuiHelper.LayoutElement(
@@ -261,10 +270,10 @@ public class DimStackScreen extends Screen {
             }),
             GuiHelper.blankSpace(5),
             new GuiHelper.LayoutElement(true, 20, (from, to) -> {
-                finishButton.setY(from);
-                addDimensionButton.setY(from);
-                removeDimensionButton.setY(from);
-                editButton.setY(from);
+                finishButton.y = (from);
+                addDimensionButton.y = (from);
+                removeDimensionButton.y = (from);
+                editButton.y = (from);
                 GuiHelper.layout(
                     0, width,
                     GuiHelper.blankSpace(10),
