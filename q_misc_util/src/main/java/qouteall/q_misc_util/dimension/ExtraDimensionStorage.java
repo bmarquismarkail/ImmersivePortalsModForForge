@@ -1,17 +1,14 @@
 package qouteall.q_misc_util.dimension;
 
 import com.google.gson.JsonElement;
-import com.google.gson.JsonIOException;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.google.gson.JsonSyntaxException;
 import com.mojang.datafixers.util.Either;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -20,7 +17,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.levelgen.WorldGenSettings;
-import net.minecraft.world.level.levelgen.WorldOptions;
+import net.minecraftforge.common.MinecraftForge;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.Validate;
 import qouteall.q_misc_util.Helper;
@@ -28,44 +25,43 @@ import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.api.DimensionAPI;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Path;
 
 public class ExtraDimensionStorage {
-    
+
     public static void init() {
-        DimensionAPI.serverDimensionsLoadEvent.register(
-            ExtraDimensionStorage::loadExtraDimensions
-        );
+        MinecraftForge.EVENT_BUS.register(ExtraDimensionStorage.class);
+//        DimensionAPI.serverDimensionsLoadEvent.register( //TODO Reimplement this !DONE
+//            ExtraDimensionStorage::loadExtraDimensions
+//        );
+
     }
-    
-    private static void loadExtraDimensions(WorldOptions worldOptions, RegistryAccess registryAccess) {
-        MinecraftServer server = MiscHelper.getServer();
-        if (server != null && server.isRunning()) {
-            RegistryOps<JsonElement> ops = RegistryOps.create(JsonOps.INSTANCE, registryAccess);
-    
-            Registry<LevelStem> dimensionRegistry = registryAccess.registryOrThrow(Registries.LEVEL_STEM);
-            
-            Path extraStorageFolderPath = getExtraStorageFolderPath();
-            File[] subFiles = extraStorageFolderPath.toFile().listFiles();
-            if (subFiles != null) {
-                for (File nameSpace : subFiles) {
-                    if (nameSpace.isDirectory()) {
-                        for (File file : nameSpace.listFiles()) {
-                            ResourceLocation id = new ResourceLocation(
-                                nameSpace.getName(), FilenameUtils.getBaseName(file.getName())
-                            );
-                            
-                            readFile(ops, dimensionRegistry, file, id);
+        private static void loadExtraDimensions(WorldGenSettings worldGenSettings, RegistryAccess registryAccess) {
+            MinecraftServer server = MiscHelper.getServer();
+            if (server != null && server.isRunning()) {
+                RegistryOps<JsonElement> ops = RegistryOps.create(JsonOps.INSTANCE, registryAccess);
+                Registry<LevelStem> dimensionRegistry = worldGenSettings.dimensions();
+
+                Path extraStorageFolderPath = getExtraStorageFolderPath();
+                File[] subFiles = extraStorageFolderPath.toFile().listFiles();
+                if (subFiles != null) {
+                    for (File nameSpace : subFiles) {
+                        if (nameSpace.isDirectory()) {
+                            for (File file : nameSpace.listFiles()) {
+                                ResourceLocation id = new ResourceLocation(
+                                        nameSpace.getName(), FilenameUtils.getBaseName(file.getName())
+                                );
+
+                                readFile(ops, dimensionRegistry, file, id);
+                            }
                         }
                     }
                 }
             }
         }
-    }
     
     private static void readFile(
         RegistryOps<JsonElement> ops, Registry<LevelStem> dimensionRegistry,
@@ -90,7 +86,7 @@ public class ExtraDimensionStorage {
                 DimensionAPI.addDimension(
                     dimensionRegistry,
                     id,
-                    levelStem.type(),
+                    levelStem.typeHolder(),
                     levelStem.generator()
                 );
             }
