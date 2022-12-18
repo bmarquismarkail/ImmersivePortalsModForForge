@@ -24,71 +24,95 @@ import java.util.Set;
 
 public class DimensionAPI {
     private static final Logger logger = LogManager.getLogger();
-    
+
     public static interface ServerDimensionsLoadCallback {
         /**
          * You can get the registry of dimensions using `worldGenSettings.dimensions()`
          * For biomes and dimension types, you can get them from the registry access
          */
-        void run(WorldOptions worldOptions, RegistryAccess registryAccess);
+        void run(WorldGenSettings worldGenSettings, RegistryAccess registryAccess);
     }
-    
-    public static final Event<ServerDimensionsLoadCallback> serverDimensionsLoadEvent =
-        EventFactory.createArrayBacked(
-            ServerDimensionsLoadCallback.class,
-            (listeners) -> ((worldOptions, registryManager) -> {
-                Registry<LevelStem> levelStems = registryManager.registryOrThrow(Registries.LEVEL_STEM);
-                for (ServerDimensionsLoadCallback listener : listeners) {
-                    listener.run(worldOptions, registryManager);
-                }
-            })
-        );
-    
+
+//    public static final Event<ServerDimensionsLoadCallback> serverDimensionsLoadEvent =
+//        EventFactory.createArrayBacked(
+//            ServerDimensionsLoadCallback.class,
+//            (listeners) -> ((generatorOptions, registryManager) -> {
+//                for (ServerDimensionsLoadCallback listener : listeners) {
+//                    DimensionMisc.ensureRegistryNotFrozen(generatorOptions);
+//                    listener.run(generatorOptions, registryManager);
+//                }
+//                DimensionMisc.ensureRegistryFrozen(generatorOptions);
+//            })
+//        );
+
     /**
      * Add a new dimension during server initialization.
      * The added dimension won't be saved into `level.dat`.
      * Cannot be used when the server is running.
      */
     public static void addDimension(
-        Registry<LevelStem> levelStemRegistry,
-        ResourceLocation dimensionId,
-        Holder<DimensionType> dimensionTypeHolder,
-        ChunkGenerator chunkGenerator
+            Registry<LevelStem> levelStemRegistry,
+            ResourceLocation dimensionId,
+            Holder<DimensionType> dimensionTypeHolder,
+            ChunkGenerator chunkGenerator
     ) {
         addDimension(levelStemRegistry, dimensionId, new LevelStem(
-            dimensionTypeHolder,
-            chunkGenerator
+                dimensionTypeHolder,
+                chunkGenerator
         ));
     }
-    
+
     /**
      * Add a new dimension during server initialization.
      * The added dimension won't be saved into `level.dat`.
      * Cannot be used when the server is running.
      */
     private static void addDimension(
-        Registry<LevelStem> levelStemRegistry,
-        ResourceLocation dimensionId,
-        LevelStem levelStem
+            Registry<LevelStem> levelStemRegistry,
+            ResourceLocation dimensionId,
+            LevelStem levelStem
     ) {
-        if (!(levelStemRegistry instanceof MappedRegistry<LevelStem> mapped)) {
+        if (levelStemRegistry instanceof MappedRegistry<LevelStem> mapped) {
+            if (!mapped.keySet().contains(dimensionId)) {
+
+                mapped.register(
+                        ResourceKey.create(Registry.LEVEL_STEM_REGISTRY, dimensionId),
+                        levelStem,
+                        Lifecycle.stable()
+                );
+            }
+        }
+        else {
             throw new RuntimeException("Failed to register the dimension");
         }
-        
-        if (!mapped.keySet().contains(dimensionId)) {
-            // the vanilla freezing mechanism is used for validating dangling object references
-            // for this API, that thing won't happen
-            boolean oldIsFrozen = ((IEMappedRegistry) mapped).ip_getIsFrozen();
-            ((IEMappedRegistry) mapped).ip_setIsFrozen(false);
-            mapped.register(
-                ResourceKey.create(Registries.LEVEL_STEM, dimensionId),
-                levelStem,
-                Lifecycle.stable()
-            );
-            ((IEMappedRegistry) mapped).ip_setIsFrozen(oldIsFrozen);
-        }
+
+        markDimensionNonPersistent(dimensionId);
     }
-    
+
+    @Deprecated
+    public static void addDimension(
+            long argSeed,
+            Registry<LevelStem> dimensionOptionsRegistry,
+            ResourceLocation dimensionId,
+            Holder<DimensionType> dimensionTypeHolder,
+            ChunkGenerator chunkGenerator
+    ) {
+        addDimension(dimensionOptionsRegistry, dimensionId, dimensionTypeHolder, chunkGenerator);
+    }
+
+
+    /**
+     * Don't use this for dynamically-added dimensions
+     * <p>
+     * If you don't mark a dimension non-persistent, then it will be saved into "level.dat" file
+     * Then when you upgrade the world or remove the mod, DFU cannot recognize it
+     * then the nether and the end will vanish.
+     * It's recommended to mark your own dimension non-persistent
+     */
+    public static void markDimensionNonPersistent(ResourceLocation dimensionId) {
+        DimensionMisc.nonPersistentDimensions.add(dimensionId);
+    }
+
     /**
      * Add a new dimension when the server is running
      * Cannot be used during server initialization
@@ -96,12 +120,12 @@ public class DimensionAPI {
      * otherwise that dimension will be lost when you restart the server
      */
     public static void addDimensionDynamically(
-        ResourceLocation dimensionId,
-        LevelStem levelStem
+            ResourceLocation dimensionId,
+            LevelStem levelStem
     ) {
         DynamicDimensionsImpl.addDimensionDynamically(dimensionId, levelStem);
     }
-    
+
     /**
      * Remove a dimension dynamically.
      * Cannot be used during server initialization. Cannot remove vanilla dimensions.
@@ -110,7 +134,7 @@ public class DimensionAPI {
     public static void removeDimensionDynamically(ServerLevel world) {
         DynamicDimensionsImpl.removeDimensionDynamically(world);
     }
-    
+
     /**
      * Store the dimension configurations as a json file in folder `q_dimension_configs` in the world saving
      * We don't store dimensions in `level.dat` because if you uninstall the mod,
@@ -118,12 +142,12 @@ public class DimensionAPI {
      */
     public static void saveDimensionConfiguration(ResourceKey<Level> dimension) {
         Validate.isTrue(
-            !dimension.location().getNamespace().equals("minecraft"),
-            "cannot save a vanilla dimension"
+                !dimension.location().getNamespace().equals("minecraft"),
+                "cannot save a vanilla dimension"
         );
         ExtraDimensionStorage.saveDimensionIntoExtraStorage(dimension);
     }
-    
+
     /**
      * Delete the dimension configuration json file from folder `q_dimension_configs`
      *
@@ -132,35 +156,35 @@ public class DimensionAPI {
     public static boolean deleteDimensionConfiguration(ResourceKey<Level> dimension) {
         return ExtraDimensionStorage.removeDimensionFromExtraStorage(dimension);
     }
-    
+
     public static interface DynamicUpdateListener {
         void run(Set<ResourceKey<Level>> dimensions);
     }
-    
-    /**
-     * Will be triggered when the server dynamically add or remove a dimension
-     * Does not get triggered during server initialization
-     */
-    public static final Event<DynamicUpdateListener> serverDimensionDynamicUpdateEvent =
-        EventFactory.createArrayBacked(
-            DynamicUpdateListener.class,
-            arr -> (set) -> {
-                for (DynamicUpdateListener runnable : arr) {
-                    runnable.run(set);
-                }
-            }
-        );
-    
-    /**
-     * Will be triggered when the client receives dimension data synchronization
-     */
-    public static final Event<DynamicUpdateListener> clientDimensionUpdateEvent =
-        EventFactory.createArrayBacked(
-            DynamicUpdateListener.class,
-            arr -> (set) -> {
-                for (DynamicUpdateListener runnable : arr) {
-                    runnable.run(set);
-                }
-            }
-        );
+
+//    /**
+//     * Will be triggered when the server dynamically add or remove a dimension
+//     * Does not get triggered during server initialization
+//     */
+//    public static final Event<DynamicUpdateListener> serverDimensionDynamicUpdateEvent = //TODO Reimplement this !IMPORTANT
+//        EventFactory.createArrayBacked(
+//            DynamicUpdateListener.class,
+//            arr -> (set) -> {
+//                for (DynamicUpdateListener runnable : arr) {
+//                    runnable.run(set);
+//                }
+//            }
+//        );
+
+//    /**
+//     * Will be triggered when the client receives dimension data synchronization
+//     */
+//    public static final Event<DynamicUpdateListener> clientDimensionUpdateEvent = //TODO Reimplement this !IMPORTANT
+//        EventFactory.createArrayBacked(
+//            DynamicUpdateListener.class,
+//            arr -> (set) -> {
+//                for (DynamicUpdateListener runnable : arr) {
+//                    runnable.run(set);
+//                }
+//            }
+//        );
 }
