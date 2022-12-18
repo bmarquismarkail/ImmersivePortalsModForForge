@@ -1,7 +1,7 @@
 package qouteall.imm_ptl.core.compat.mixin;
 
 import net.coderbot.iris.pipeline.ClearPass;
-import org.joml.Vector4f;
+import net.coderbot.iris.vendored.joml.Vector4f;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -15,7 +15,7 @@ public class MixinIrisClearPass {
     @Inject(
         method = "execute", at = @At("HEAD"), cancellable = true
     )
-    private void onExecute(Vector4f par1, CallbackInfo ci) {
+    private void onExecute(Vector4f defaultClearColor, CallbackInfo ci) {
         if (IPCGlobal.renderer instanceof ExperimentalIrisPortalRenderer) {
             if (PortalRendering.isRendering()) {
                 ci.cancel();
