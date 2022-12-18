@@ -1,15 +1,12 @@
 package qouteall.imm_ptl.core.mixin.client.sync;
 
 import com.mojang.authlib.GameProfile;
+import net.minecraft.client.ClientTelemetryManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.multiplayer.ClientPacketListener;
-import net.minecraft.client.multiplayer.ClientRegistryLayer;
 import net.minecraft.client.multiplayer.PlayerInfo;
-import net.minecraft.client.multiplayer.ServerData;
-import net.minecraft.client.telemetry.WorldSessionTelemetryManager;
-import net.minecraft.core.LayeredRegistryAccess;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.*;
@@ -41,6 +38,7 @@ public abstract class MixinClientPacketListener implements IEClientPlayNetworkHa
     @Shadow
     private ClientLevel level;
     
+    @Final
     @Shadow
     private Minecraft minecraft;
     
@@ -56,9 +54,9 @@ public abstract class MixinClientPacketListener implements IEClientPlayNetworkHa
     protected abstract void applyLightData(int x, int z, ClientboundLightUpdatePacketData data);
     
     @Shadow public abstract RegistryAccess registryAccess();
-    
-    @Shadow private LayeredRegistryAccess<ClientRegistryLayer> registryAccess;
-    
+
+    @Shadow private RegistryAccess.Frozen registryAccess;
+
     @Override
     public void ip_setWorld(ClientLevel world) {
         this.level = world;
@@ -79,8 +77,7 @@ public abstract class MixinClientPacketListener implements IEClientPlayNetworkHa
         at = @At("RETURN")
     )
     private void onInit(
-        Minecraft minecraft, Screen screen, Connection connection, ServerData serverData,
-        GameProfile gameProfile, WorldSessionTelemetryManager worldSessionTelemetryManager, CallbackInfo ci
+            Minecraft pMinecraft, Screen pCallbackScreen, Connection pConnection, GameProfile pLocalGameProfile, ClientTelemetryManager pTelemetryManager, CallbackInfo ci
     ) {
         isReProcessingPassengerPacket = false;
     }
@@ -114,6 +111,7 @@ public abstract class MixinClientPacketListener implements IEClientPlayNetworkHa
         
         if (world != null) {
             if (world.dimension() != playerDimension) {
+                assert Minecraft.getInstance().player != null;
                 if (!Minecraft.getInstance().player.isRemoved()) {
                     Helper.log(String.format(
                         "denied position packet %s %s %s %s",
