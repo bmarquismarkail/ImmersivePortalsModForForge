@@ -1,7 +1,5 @@
 package qouteall.imm_ptl.core.portal;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.minecraft.Util;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
@@ -29,21 +27,25 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.network.NetworkDirection;
 import org.apache.commons.lang3.Validate;
-import org.joml.Matrix4f;
+import com.mojang.math.Matrix4f;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.compat.PehkuiInterface;
 import qouteall.imm_ptl.core.compat.iris_compatibility.IrisInterface;
+import qouteall.imm_ptl.core.platform_specific.forge.networking.IPMessage;
+import qouteall.imm_ptl.core.platform_specific.forge.networking.Spawn_Entity;
 import qouteall.imm_ptl.core.portal.animation.AnimationView;
 import qouteall.imm_ptl.core.portal.animation.DefaultPortalAnimation;
 import qouteall.imm_ptl.core.portal.animation.PortalAnimation;
 import qouteall.imm_ptl.core.portal.animation.PortalAnimationDriver;
 import qouteall.q_misc_util.dimension.DimId;
 import qouteall.imm_ptl.core.mc_utils.IPEntityEventListenableEntity;
-import qouteall.imm_ptl.core.platform_specific.IPNetworking;
 import qouteall.imm_ptl.core.render.FrustumCuller;
 import qouteall.imm_ptl.core.render.PortalGroup;
 import qouteall.imm_ptl.core.render.PortalRenderer;
@@ -299,7 +301,7 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
         CompoundTag customData = new CompoundTag();
         addAdditionalSaveData(customData);
         
-        ClientboundCustomPayloadPacket packet = McRemoteProcedureCall.createPacketToSendToClient(
+        ClientboundCustomPayloadPacket packet = (ClientboundCustomPayloadPacket) McRemoteProcedureCall.createPacketToSendToClient(
             "qouteall.imm_ptl.core.portal.Portal.RemoteCallables.acceptPortalDataSync",
             level.dimension(),
             getId(),
@@ -803,8 +805,8 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     }
     
     @Override
-    public Packet<ClientGamePacketListener> getAddEntityPacket() {
-        return IPNetworking.createStcSpawnEntity(this);
+    public Packet<?> getAddEntityPacket() {
+        return IPMessage.INSTANCE.toVanillaPacket(new Spawn_Entity(this), NetworkDirection.PLAY_TO_CLIENT);
     }
     
     @Override

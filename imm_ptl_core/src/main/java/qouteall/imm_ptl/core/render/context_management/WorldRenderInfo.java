@@ -1,10 +1,11 @@
 package qouteall.imm_ptl.core.render.context_management;
 
-import org.joml.Matrix3f;
-import org.joml.Matrix4f;
+
 import qouteall.imm_ptl.core.ducks.IECamera;
 
 import javax.annotation.Nullable;
+import com.mojang.math.Matrix4f;
+import com.mojang.math.Matrix3f;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -86,7 +87,7 @@ public class WorldRenderInfo {
         this.overwriteCameraTransformation = overwriteCameraTransformation;
         this.doRenderHand = doRenderHand;
     }
-    
+
     public static void pushRenderInfo(WorldRenderInfo worldRenderInfo) {
         renderInfoStack.push(worldRenderInfo);
     }
@@ -105,18 +106,19 @@ public class WorldRenderInfo {
     public static void applyAdditionalTransformations(PoseStack matrixStack) {
         for (WorldRenderInfo worldRenderInfo : renderInfoStack) {
             if (worldRenderInfo.overwriteCameraTransformation) {
-                matrixStack.last().pose().identity();
-                matrixStack.last().normal().identity();
+                matrixStack.last().pose().setIdentity();
+                matrixStack.last().normal().setIdentity();
             }
             
             Matrix4f matrix = worldRenderInfo.cameraTransformation;
             if (matrix != null) {
-                matrixStack.last().pose().mul(matrix);
+                matrixStack.last().pose().multiply(matrix);
                 
                 Matrix3f normalMatrixMult = new Matrix3f(matrix);
+                float determinant = (float) Math.pow(1.0 / Math.abs(normalMatrixMult.determinant()), 1.0 / 3);
                 // make its determinant 1, so it won't scale the normal vector
-                normalMatrixMult.scale(
-                    (float) Math.pow(1.0 / Math.abs(normalMatrixMult.determinant()), 1.0 / 3)
+                normalMatrixMult.createScaleMatrix(
+                        determinant, determinant, determinant
                 );
                 matrixStack.last().normal().mul(normalMatrixMult);
             }

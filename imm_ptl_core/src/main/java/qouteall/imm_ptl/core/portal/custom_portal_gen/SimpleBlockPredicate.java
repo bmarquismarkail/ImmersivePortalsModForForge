@@ -6,8 +6,6 @@ import com.mojang.serialization.Lifecycle;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.packs.resources.ReloadableResourceManager;
@@ -76,10 +74,10 @@ public class SimpleBlockPredicate implements Predicate<BlockState> {
         }
         
         ResourceLocation id = new ResourceLocation(string);
-        
-        TagKey<Block> tagKey = TagKey.create(Registries.BLOCK, id);
-        
-        Registry<Block> blockRegistry = server.registryAccess().registry(Registries.BLOCK).get();
+
+        TagKey<Block> tagKey = TagKey.create(Registry.BLOCK_REGISTRY, id);
+
+        Registry<Block> blockRegistry = server.registryAccess().registry(Registry.BLOCK_REGISTRY).get();
     
         Optional<HolderSet.Named<Block>> tag1 = blockRegistry.getTag(tagKey);
         boolean knownTagName = tag1.isPresent();
@@ -89,7 +87,7 @@ public class SimpleBlockPredicate implements Predicate<BlockState> {
         }
         
         if (blockRegistry.keySet().contains(id)) {
-            Block block = BuiltInRegistries.BLOCK.get(id);
+            Block block = Registry.BLOCK.get(id);
             return DataResult.success(new SimpleBlockPredicate(string, block), Lifecycle.stable());
         }
         

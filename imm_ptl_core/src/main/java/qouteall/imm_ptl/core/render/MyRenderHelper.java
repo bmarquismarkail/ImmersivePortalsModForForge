@@ -10,21 +10,19 @@ import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexBuffer;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.math.Vector3f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
-import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceProvider;
-import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.Validate;
-import org.joml.Matrix4f;
+import com.mojang.math.Matrix4f;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPGlobal;
-import qouteall.imm_ptl.core.compat.sodium_compatibility.SodiumInterface;
 import qouteall.imm_ptl.core.miscellaneous.IPVanillaCopy;
 import qouteall.imm_ptl.core.portal.PortalLike;
 import qouteall.imm_ptl.core.render.context_management.PortalRendering;
@@ -199,7 +197,7 @@ public class MyRenderHelper {
         Validate.notNull(shader);
         
         Matrix4f identityMatrix = new Matrix4f();
-        identityMatrix.identity();
+        identityMatrix.setIdentity();
         
         shader.MODEL_VIEW_MATRIX.set(identityMatrix);
         shader.PROJECTION_MATRIX.set(identityMatrix);
@@ -247,7 +245,7 @@ public class MyRenderHelper {
         Validate.notNull(shader);
         
         Matrix4f identityMatrix = new Matrix4f();
-        identityMatrix.identity();
+        identityMatrix.setIdentity();
         
         shader.MODEL_VIEW_MATRIX.set(identityMatrix);
         shader.PROJECTION_MATRIX.set(identityMatrix);
@@ -350,9 +348,12 @@ public class MyRenderHelper {
         
         shader.setSampler("DiffuseSampler", textureProvider.getColorTextureId());
         
-        Matrix4f projectionMatrix = (new Matrix4f()).setOrtho(0.0F, (float)viewportWidth, (float)viewportHeight, 0.0F, 1000.0F, 3000.0F);
+        Matrix4f projectionMatrix = (new Matrix4f()).orthographic(0.0F, (float)viewportWidth, (float)viewportHeight, 0.0F, 1000.0F, 3000.0F);
     
-        shader.MODEL_VIEW_MATRIX.set(new Matrix4f().translation(0.0F, 0.0F, -2000.0F));
+        Vector3f vector = new Vector3f(0.0F, 0.0F, -2000.0F);
+        Matrix4f newMat = new Matrix4f();
+        newMat.translate(vector);
+        shader.MODEL_VIEW_MATRIX.set(newMat);
         
         shader.PROJECTION_MATRIX.set(projectionMatrix);
         
@@ -412,7 +413,7 @@ public class MyRenderHelper {
     
     /**
      * If we don't do this
-     * the future created in {@link net.minecraft.client.renderer.chunk.ChunkRenderDispatcher#uploadChunkLayer(BufferBuilder, VertexBuffer)}
+     * the future created in { net.minecraft.client.renderer.chunk.ChunkRenderDispatcher#uploadChunkLayer(BufferBuilder, VertexBuffer)}
      * may never complete
      */
     public static void earlyRemoteUpload() {

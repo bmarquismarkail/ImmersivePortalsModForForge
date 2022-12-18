@@ -1,7 +1,6 @@
 package qouteall.imm_ptl.peripheral.dim_stack;
 
 import net.minecraft.core.Registry;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -168,7 +167,7 @@ public class DimStackInfo {
         }
         
         try {
-            Optional<Block> block = BuiltInRegistries.BLOCK.getOptional(new ResourceLocation(str));
+            Optional<Block> block = Registry.BLOCK.getOptional(new ResourceLocation(str));
             return block.map(Block::defaultBlockState).orElse(null);
         } catch (Exception e) {
             e.printStackTrace();

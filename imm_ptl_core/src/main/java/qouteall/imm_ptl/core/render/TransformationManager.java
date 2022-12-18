@@ -12,16 +12,17 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.phys.Vec3;
-import org.joml.Matrix4f;
-import org.joml.Quaternionf;
-import org.joml.Vector3f;
+import com.mojang.math.Matrix4f;
+import com.mojang.math.Quaternion;
+import com.mojang.math.Vector3f;
 import qouteall.imm_ptl.core.compat.GravityChangerInterface;
-import qouteall.imm_ptl.core.ducks.IEMatrix4f;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.render.context_management.RenderStates;
 import qouteall.imm_ptl.core.render.context_management.WorldRenderInfo;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.my_util.DQuaternion;
+
+import java.nio.FloatBuffer;
 
 @OnlyIn(Dist.CLIENT)
 public class TransformationManager {
@@ -58,8 +59,8 @@ public class TransformationManager {
         
         if (isAnimationRunning()) {
             // override vanilla camera transformation
-            matrixStack.last().pose().identity();
-            matrixStack.last().normal().identity();
+            matrixStack.last().pose().setIdentity();
+            matrixStack.last().normal().setIdentity();
             
             Direction gravityDir = GravityChangerInterface.invoker.getGravityDirection(client.player);
             
@@ -217,7 +218,7 @@ public class TransformationManager {
             0, 0, 0, 1
         };
         Matrix4f matrix = new Matrix4f();
-        matrix.set(arr);
+        matrix.load(FloatBuffer.wrap(arr));
         return matrix;
     }
     
@@ -244,7 +245,7 @@ public class TransformationManager {
             0, 0, 0, 1
         };
         Matrix4f m1 = new Matrix4f();
-        m1.set(arr);
+        m1.load(FloatBuffer.wrap(arr));
         
         return m1;
     }
@@ -280,9 +281,9 @@ public class TransformationManager {
             return cameraPos;
         }
         
-        Quaternionf rotation = camera.rotation();
+        Quaternion rotation = camera.rotation();
         Vector3f vec = new Vector3f(0, 0, client.options.getEffectiveRenderDistance() * -10);
-        rotation.transform(vec);
+        vec.transform(rotation);
         
         return cameraPos.add(vec.x(), vec.y(), vec.z());
     }

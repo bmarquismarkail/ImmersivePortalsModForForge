@@ -6,8 +6,8 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.world.phys.Vec3;
-import org.joml.Matrix4f;
-import org.joml.Vector4f;
+import com.mojang.math.Matrix4f;
+import com.mojang.math.Vector4f;
 import org.lwjgl.opengl.GL11;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.IPCGlobal;
@@ -80,7 +80,7 @@ public class FrontClipping {
         Matrix4f m = new Matrix4f(matrixStack.last().pose());
         m.invert();
         m.transpose();
-        m.transform(eq);
+        eq.transform(m);
         return new double[]{eq.x(), eq.y(), eq.z(), eq.w()};
     }
     

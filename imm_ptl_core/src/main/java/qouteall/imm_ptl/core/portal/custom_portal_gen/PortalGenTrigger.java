@@ -5,7 +5,6 @@ import com.mojang.serialization.Lifecycle;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.Registry;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
@@ -77,14 +76,14 @@ public abstract class PortalGenTrigger {
     
     public static final Codec<UseItemTrigger> useItemTriggerCodec = RecordCodecBuilder.create(instance -> {
         return instance.group(
-            BuiltInRegistries.ITEM.byNameCodec().fieldOf("item").forGetter(o -> o.item),
+            Registry.ITEM.byNameCodec().fieldOf("item").forGetter(o -> o.item),
             Codec.BOOL.optionalFieldOf("consume", false).forGetter(o -> o.consume)
         ).apply(instance, instance.stable(UseItemTrigger::new));
     });
     
     public static final Codec<ThrowItemTrigger> throwItemTriggerCodec = RecordCodecBuilder.create(instance -> {
         return instance.group(
-            BuiltInRegistries.ITEM.byNameCodec().fieldOf("item").forGetter(o -> o.item)
+            Registry.ITEM.byNameCodec().fieldOf("item").forGetter(o -> o.item)
         ).apply(instance, instance.stable(ThrowItemTrigger::new));
     });
     
@@ -94,7 +93,7 @@ public abstract class PortalGenTrigger {
     static {
         codecRegistry = new MappedRegistry<>(
             ResourceKey.createRegistryKey(new ResourceLocation("imm_ptl:custom_portal_gen_trigger")),
-            Lifecycle.stable()
+            Lifecycle.stable(), null
         );
         
         Registry.register(

@@ -23,7 +23,6 @@ import net.minecraft.commands.arguments.coordinates.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
@@ -1785,7 +1784,7 @@ public class PortalCommand {
     
     private static BlockState getRandomBlock() {
         for (; ; ) {
-            Block block = BuiltInRegistries.BLOCK.getRandom(RandomSource.create()).get().value();
+            Block block = Registry.BLOCK.getRandom(RandomSource.create()).get().value();
             BlockState state = block.defaultBlockState();
             Material material = state.getMaterial();
             if (material.blocksMotion() && material.getPushReaction() == PushReaction.NORMAL

@@ -2,7 +2,6 @@ package qouteall.imm_ptl.core.portal.nether_portal;
 
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.server.level.ServerLevel;
@@ -79,10 +78,7 @@ public abstract class BreakablePortalEntity extends Portal {
         unbreakable = compoundTag.getBoolean("unbreakable");
         
         if (compoundTag.contains("overlayBlockState")) {
-            BlockState overlayBlockState = NbtUtils.readBlockState(
-                level.holderLookup(Registries.BLOCK),
-                compoundTag.getCompound("overlayBlockState")
-            );
+            BlockState overlayBlockState = NbtUtils.readBlockState(compoundTag.getCompound("overlayBlockState"));
             if (overlayBlockState.isAir()) {
                 overlayInfo = null;
             }
@@ -124,7 +120,7 @@ public abstract class BreakablePortalEntity extends Portal {
     private void breakPortalOnThisSide() {
         blockPortalShape.area.forEach(
             blockPos -> {
-                if (level.getBlockState(blockPos).getBlock() == PortalPlaceholderBlock.instance) {
+                if (level.getBlockState(blockPos).getBlock() == IPRegistry.NETHER_PORTAL_BLOCK.get()) {
                     level.setBlockAndUpdate(
                         blockPos, Blocks.AIR.defaultBlockState()
                     );
@@ -193,7 +189,7 @@ public abstract class BreakablePortalEntity extends Portal {
     
     protected abstract boolean isPortalIntactOnThisSide();
     
-    @Environment(EnvType.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     protected abstract void addSoundAndParticle();
     
     private static final LimitedLogger limitedLogger = new LimitedLogger(20);

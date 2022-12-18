@@ -1,9 +1,5 @@
 package qouteall.imm_ptl.core.portal.nether_portal;
 
-import com.mojang.math.Quaternion;
-import com.mojang.math.Vector3f;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.sounds.SoundEvents;
@@ -14,9 +10,11 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.NetherPortalBlock;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import qouteall.imm_ptl.core.IPGlobal;
+import qouteall.imm_ptl.core.platform_specific.IPRegistry;
 import qouteall.imm_ptl.core.platform_specific.O_O;
-import qouteall.imm_ptl.core.portal.PortalPlaceholderBlock;
 import qouteall.q_misc_util.my_util.DQuaternion;
 
 public class NetherPortalEntity extends BreakablePortalEntity {
@@ -71,22 +69,22 @@ public class NetherPortalEntity extends BreakablePortalEntity {
     public void tick() {
         super.tick();
     }
-    
+
     @Override
     protected boolean isPortalIntactOnThisSide() {
-        
+
         return blockPortalShape.area.stream()
-            .allMatch(blockPos ->
-                level.getBlockState(blockPos).getBlock() == PortalPlaceholderBlock.instance
-            ) &&
-            blockPortalShape.frameAreaWithoutCorner.stream()
                 .allMatch(blockPos ->
-                    O_O.isObsidian(level.getBlockState(blockPos))
-                );
+                        level.getBlockState(blockPos).getBlock() == IPRegistry.NETHER_PORTAL_BLOCK.get()
+                ) &&
+                blockPortalShape.frameAreaWithoutCorner.stream()
+                        .allMatch(blockPos ->
+                                O_O.isObsidian(level.getBlockState(blockPos))
+                        );
     }
     
     @Override
-    @Environment(EnvType.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     protected void addSoundAndParticle() {
         if (!IPGlobal.enableNetherPortalEffect) {
             return;
@@ -140,5 +138,10 @@ public class NetherPortalEntity extends BreakablePortalEntity {
         }
         
         return super.getActualOverlay();
+    }
+
+    @Override
+    public boolean alwaysAccepts() {
+        return super.alwaysAccepts();
     }
 }

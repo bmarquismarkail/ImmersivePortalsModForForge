@@ -6,7 +6,6 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.block.Block;
@@ -31,7 +30,7 @@ import java.util.stream.IntStream;
 
 public class FlippingFloorSquareForm extends PortalGenForm {
     
-    public static final ListCodec<Block> blockListCodec = new ListCodec<>(BuiltInRegistries.BLOCK.byNameCodec());
+    public static final ListCodec<Block> blockListCodec = new ListCodec<>(Registry.BLOCK.byNameCodec());
     
     public static final Codec<FlippingFloorSquareForm> codec = RecordCodecBuilder.create(instance -> {
         return instance.group(
