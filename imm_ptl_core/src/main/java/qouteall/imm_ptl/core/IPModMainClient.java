@@ -118,8 +118,8 @@ public class IPModMainClient {
             })
         ));
     }
-    
-    public static void init() {
+    @SubscribeEvent
+    public static void init(FMLClientSetupEvent event) {
         //IPNetworkingClient.init();
         
         ClientWorldLoader.init();
