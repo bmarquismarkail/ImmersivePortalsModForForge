@@ -6,7 +6,6 @@ import com.google.gson.JsonElement;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.Lifecycle;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.worldselection.CreateWorldScreen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.MappedRegistry;
@@ -25,14 +24,12 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.context.UseOnContext;
-import net.minecraftforge.fml.loading.FMLEnvironment;
-import org.jetbrains.annotations.Nullable;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
-import qouteall.imm_ptl.core.mixin.common.IERegistryLoader;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.my_util.UCoordinate;
+import qouteall.imm_ptl.core.mixin.common.IERegistryLoader;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -107,31 +104,31 @@ public class CustomPortalGenManagement {
             registryTracker
         );
         
-        MappedRegistry<CustomPortalGeneration> emptyRegistry = new MappedRegistry<>(
+        MappedRegistry<CustomPortalGeneration> registry = new MappedRegistry<>(
             CustomPortalGeneration.registryRegistryKey,
             Lifecycle.stable(), null
         );
-        
+
         RegistryResourceAccess registryResourceAccess = RegistryResourceAccess.forResourceManager(resourceManager);
-        
+
         RegistryLoader registryLoader = IERegistryLoader.construct(registryResourceAccess);
         DataResult<Registry<CustomPortalGeneration>> dataResult =
-            ((IERegistryLoader) registryLoader).ip_overrideRegistryFromResources(
-                emptyRegistry,
-                CustomPortalGeneration.registryRegistryKey,
-                CustomPortalGeneration.codec.codec(),
-                registryOps
-            
-            );
-        
+                ((IERegistryLoader) registryLoader).ip_overrideRegistryFromResources(
+                        registry,
+                        CustomPortalGeneration.registryRegistryKey,
+                        CustomPortalGeneration.codec.codec(),
+                        registryOps
+
+                );
+
         Registry<CustomPortalGeneration> result = dataResult.get().left().orElse(null);
-        
+
         if (result == null) {
             DataResult.PartialResult<Registry<CustomPortalGeneration>> r =
-                dataResult.get().right().get();
+                    dataResult.get().right().get();
             McHelper.sendMessageToFirstLoggedPlayer(Component.literal(
-                "Error when parsing custom portal generation\n" +
-                    r.message()
+                    "Error when parsing custom portal generation\n" +
+                            r.message()
             ));
             return null;
         }

@@ -10,21 +10,20 @@ import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexBuffer;
 import com.mojang.blaze3d.vertex.VertexFormat;
-import com.mojang.math.Matrix4f;
+import com.mojang.math.Vector3f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
-import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceProvider;
-import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.Validate;
+import com.mojang.math.Matrix4f;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPGlobal;
-import qouteall.imm_ptl.core.compat.sodium_compatibility.SodiumInterface;
+import qouteall.imm_ptl.core.miscellaneous.IPVanillaCopy;
 import qouteall.imm_ptl.core.portal.PortalLike;
 import qouteall.imm_ptl.core.render.context_management.PortalRendering;
 import qouteall.imm_ptl.core.render.context_management.RenderStates;
@@ -55,7 +54,7 @@ public class MyRenderHelper {
     
     public static final Minecraft client = Minecraft.getInstance();
     
-    public static final SignalBiArged<ResourceManager, Consumer<ShaderInstance>> loadShaderSignal =
+    public static final SignalBiArged<ResourceProvider, Consumer<ShaderInstance>> loadShaderSignal =
         new SignalBiArged<>();
     
     public static void init() {
@@ -107,7 +106,7 @@ public class MyRenderHelper {
     }
     
     // vanilla hardcodes the shader namespace to be "minecraft"
-    private static ResourceProvider getResourceFactory(ResourceManager resourceManager) {
+    private static ResourceProvider getResourceFactory(ResourceProvider resourceManager) {
         ResourceProvider resourceFactory = new ResourceProvider() {
             @Override
             public Optional<Resource> getResource(ResourceLocation resourceLocation) {
@@ -316,6 +315,10 @@ public class MyRenderHelper {
         );
     }
     
+    /**
+     * {@link RenderTarget#blitToScreen(int, int)}
+     */
+    @IPVanillaCopy
     public static void drawFramebufferWithViewport(
         RenderTarget textureProvider, boolean doUseAlphaBlend, boolean doEnableModifyAlpha,
         float left, double right, float bottom, double up,
@@ -345,10 +348,12 @@ public class MyRenderHelper {
         
         shader.setSampler("DiffuseSampler", textureProvider.getColorTextureId());
         
-        Matrix4f projectionMatrix = Matrix4f.orthographic(
-            (float) viewportWidth, (float) (-viewportHeight), 1000.0F, 3000.0F);
-        
-        shader.MODEL_VIEW_MATRIX.set(Matrix4f.createTranslateMatrix(0.0F, 0.0F, -2000.0F));
+        Matrix4f projectionMatrix = (new Matrix4f()).orthographic(0.0F, (float)viewportWidth, (float)viewportHeight, 0.0F, 1000.0F, 3000.0F);
+    
+        Vector3f vector = new Vector3f(0.0F, 0.0F, -2000.0F);
+        Matrix4f newMat = new Matrix4f();
+        newMat.translate(vector);
+        shader.MODEL_VIEW_MATRIX.set(newMat);
         
         shader.PROJECTION_MATRIX.set(projectionMatrix);
         
@@ -408,7 +413,7 @@ public class MyRenderHelper {
     
     /**
      * If we don't do this
-     * the future created in {@link net.minecraft.client.renderer.chunk.ChunkRenderDispatcher#uploadChunkLayer(BufferBuilder, VertexBuffer)}
+     * the future created in { net.minecraft.client.renderer.chunk.ChunkRenderDispatcher#uploadChunkLayer(BufferBuilder, VertexBuffer)}
      * may never complete
      */
     public static void earlyRemoteUpload() {

@@ -20,41 +20,41 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class ChaosBiomeSource extends BiomeSource {
-    
+
     public static final Codec<ChaosBiomeSource> CODEC = RecordCodecBuilder.create(
-        instance -> instance.group(
-                Biome.LIST_CODEC.fieldOf("biomes")
-                    .forGetter(checkerboardColumnBiomeSource -> checkerboardColumnBiomeSource.allowedBiomes)
-            )
-            .apply(instance, ChaosBiomeSource::new)
+            instance -> instance.group(
+                            Biome.LIST_CODEC.fieldOf("biomes")
+                                    .forGetter(checkerboardColumnBiomeSource -> checkerboardColumnBiomeSource.allowedBiomes)
+                    )
+                    .apply(instance, ChaosBiomeSource::new)
     );
     private final HolderSet<Biome> allowedBiomes;
-    
+
     public ChaosBiomeSource(HolderSet<Biome> holderSet) {
         super(holderSet.stream());
         this.allowedBiomes = holderSet;
 
 
 //        Set<Holder<Biome>> set = MultiNoiseBiomeSource.Preset.OVERWORLD.biomeSource(BuiltinRegistries.BIOME).possibleBiomes();
-    
+
     }
-    
-    
+
+
     private Holder<Biome> getRandomBiome(int x, int z) {
         int biomeNum = allowedBiomes.size();
-        
+
         int index = (Math.abs((int) LinearCongruentialGenerator.next(x / 5, z / 5))) % biomeNum;
         return allowedBiomes.get(index);
     }
-    
+
     @Override
     protected Codec<? extends BiomeSource> codec() {
         return CODEC;
     }
-    
+
     @Override
     public Holder<Biome> getNoiseBiome(int x, int y, int z, Climate.Sampler sampler) {
         return getRandomBiome(x, z);
     }
-    
+
 }

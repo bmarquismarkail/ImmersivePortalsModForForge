@@ -6,6 +6,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
@@ -48,12 +49,12 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 public abstract class DelegatedChunkGenerator extends ChunkGenerator {
-    
+
     protected ChunkGenerator delegate;
     protected BiomeSource biomeSource_;
     
     public DelegatedChunkGenerator(
-        Registry<StructureSet> structureSets,
+            Registry<StructureSet> structureSets,
         BiomeSource biomeSource,
         ChunkGenerator delegate
     ) {
@@ -112,19 +113,24 @@ public abstract class DelegatedChunkGenerator extends ChunkGenerator {
         delegate.addDebugScreenInfo(list, randomState, blockPos);
     }
     
+
     @Override
-    public CompletableFuture<ChunkAccess> createBiomes(Registry<Biome> registry, Executor executor, RandomState randomState, Blender blender, StructureManager structureManager, ChunkAccess chunkAccess) {
-        return delegate.createBiomes(registry, executor, randomState, blender, structureManager, chunkAccess);
+    public CompletableFuture<ChunkAccess> createBiomes(Registry<Biome> pBiomeRegistry, Executor executor, RandomState randomState, Blender blender, StructureManager structureManager, ChunkAccess chunkAccess) {
+        return super.createBiomes(pBiomeRegistry, executor, randomState, blender, structureManager, chunkAccess);
+    }
+    
+    @Override
+    public void createStructures(RegistryAccess registryAccess, RandomState randomState, StructureManager structureManager, ChunkAccess chunkAccess, StructureTemplateManager structureTemplateManager, long seed) {
+        super.createStructures(registryAccess,
+                randomState,
+                structureManager,
+                chunkAccess,
+                structureTemplateManager, seed);
     }
     
     @Override
     public void applyBiomeDecoration(WorldGenLevel worldGenLevel, ChunkAccess chunkAccess, StructureManager structureManager) {
         delegate.applyBiomeDecoration(worldGenLevel, chunkAccess, structureManager);
-    }
-    
-    @Override
-    public Stream<Holder<StructureSet>> possibleStructureSets() {
-        return delegate.possibleStructureSets();
     }
     
     @Override
@@ -136,11 +142,6 @@ public abstract class DelegatedChunkGenerator extends ChunkGenerator {
     @Override
     public Pair<BlockPos, Holder<Structure>> findNearestMapStructure(ServerLevel serverLevel, HolderSet<Structure> holderSet, BlockPos blockPos, int i, boolean bl) {
         return delegate.findNearestMapStructure(serverLevel, holderSet, blockPos, i, bl);
-    }
-    
-    @Override
-    public boolean hasStructureChunkInRange(Holder<StructureSet> holder, RandomState randomState, long l, int i, int j, int k) {
-        return delegate.hasStructureChunkInRange(holder, randomState, l, i, j, k);
     }
     
     @Override
@@ -159,11 +160,6 @@ public abstract class DelegatedChunkGenerator extends ChunkGenerator {
     }
     
     @Override
-    public void createStructures(RegistryAccess registryAccess, RandomState randomState, StructureManager structureManager, ChunkAccess chunkAccess, StructureTemplateManager structureTemplateManager, long l) {
-        delegate.createStructures(registryAccess, randomState, structureManager, chunkAccess, structureTemplateManager, l);
-    }
-    
-    @Override
     public void createReferences(WorldGenLevel worldGenLevel, StructureManager structureManager, ChunkAccess chunkAccess) {
         delegate.createReferences(worldGenLevel, structureManager, chunkAccess);
     }
@@ -176,17 +172,6 @@ public abstract class DelegatedChunkGenerator extends ChunkGenerator {
     @Override
     public int getFirstOccupiedHeight(int i, int j, Heightmap.Types types, LevelHeightAccessor levelHeightAccessor, RandomState randomState) {
         return delegate.getFirstOccupiedHeight(i, j, types, levelHeightAccessor, randomState);
-    }
-    
-    @Override
-    public void ensureStructuresGenerated(RandomState randomState) {
-        delegate.ensureStructuresGenerated(randomState);
-    }
-    
-    @Nullable
-    @Override
-    public List<ChunkPos> getRingPositionsFor(ConcentricRingsStructurePlacement concentricRingsStructurePlacement, RandomState randomState) {
-        return delegate.getRingPositionsFor(concentricRingsStructurePlacement, randomState);
     }
     
     @Override

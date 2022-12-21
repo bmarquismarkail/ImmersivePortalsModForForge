@@ -40,87 +40,87 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 public class ErrorTerrainGenerator extends DelegatedChunkGenerator {
-    
+
     public static final Codec<ErrorTerrainGenerator> codec = RecordCodecBuilder.create(
-        instance -> instance.group(
-                RegistryOps.retrieveRegistry(Registry.STRUCTURE_SET_REGISTRY).forGetter(g -> g.structureSets),
-                RegistryOps.retrieveRegistry(Registry.BIOME_REGISTRY).forGetter(g -> g.biomeRegistry),
-                RegistryOps.retrieveRegistry(Registry.NOISE_REGISTRY).forGetter(g -> g.noiseRegistry)
-            )
-            .apply(instance, ErrorTerrainGenerator::create)
+            instance -> instance.group(
+                            RegistryOps.retrieveRegistry(Registry.STRUCTURE_SET_REGISTRY).forGetter(g -> g.structureSets),
+                            RegistryOps.retrieveRegistry(Registry.BIOME_REGISTRY).forGetter(g -> g.biomeRegistry),
+                            RegistryOps.retrieveRegistry(Registry.NOISE_REGISTRY).forGetter(g -> g.noiseRegistry)
+                    )
+                    .apply(instance, ErrorTerrainGenerator::create)
     );
-    
+
     public static ErrorTerrainGenerator create(
-        Registry<StructureSet> structureSets, Registry<Biome> biomeRegistry,
-        Registry<NormalNoise.NoiseParameters> noiseRegistry
+            Registry<StructureSet> structureSets, Registry<Biome> biomeRegistry,
+            Registry<NormalNoise.NoiseParameters> noiseRegistry
     ) {
         List<Holder.Reference<Biome>> biomeHolderList = biomeRegistry.holders()
-            // only use vanilla biomes
-            .filter(holder -> holder.key().location().getNamespace().equals("minecraft"))
-            .collect(Collectors.toList());
-        
+                // only use vanilla biomes
+                .filter(holder -> holder.key().location().getNamespace().equals("minecraft"))
+                .collect(Collectors.toList());
+
         ChaosBiomeSource chaosBiomeSource = new ChaosBiomeSource(
-            HolderSet.direct(biomeHolderList)
+                HolderSet.direct(biomeHolderList)
         );
-        
+
         NoiseGeneratorSettings skylandSetting = IENoiseGeneratorSettings.ip_floatingIslands();
-        
+
         NoiseBasedChunkGenerator islandChunkGenerator = new NoiseBasedChunkGenerator(
-            structureSets, noiseRegistry,
-            chaosBiomeSource, Holder.direct(skylandSetting)
+                structureSets, noiseRegistry,
+                chaosBiomeSource, Holder.direct(skylandSetting)
         );
-        
+
         return new ErrorTerrainGenerator(
-            structureSets, chaosBiomeSource, islandChunkGenerator,
-            biomeRegistry, noiseRegistry
+                structureSets, chaosBiomeSource, islandChunkGenerator,
+                biomeRegistry, noiseRegistry
         );
     }
-    
+
     public static final int regionChunkNum = 4;
     public static final int averageY = 64;
     public static final int maxY = 128;
-    
+
     private final BlockState air = Blocks.AIR.defaultBlockState();
     private final BlockState defaultBlock = Blocks.STONE.defaultBlockState();
     private final BlockState defaultFluid = Blocks.WATER.defaultBlockState();
-    
+
     private final LoadingCache<ChunkPos, RegionErrorTerrainGenerator> cache;
-    
+
     public final Registry<Biome> biomeRegistry;
     public final Registry<NormalNoise.NoiseParameters> noiseRegistry;
-    
+
     public ErrorTerrainGenerator(
-        Registry<StructureSet> structureSets,
-        BiomeSource biomeSource, ChunkGenerator delegate,
-        Registry<Biome> biomeRegistry,
-        Registry<NormalNoise.NoiseParameters> noiseRegistry
+            Registry<StructureSet> structureSets,
+            BiomeSource biomeSource, ChunkGenerator delegate,
+            Registry<Biome> biomeRegistry,
+            Registry<NormalNoise.NoiseParameters> noiseRegistry
     ) {
         super(structureSets, biomeSource, delegate);
-        
+
         cache = CacheBuilder.newBuilder()
-            .maximumSize(10000)
-            .expireAfterWrite(30, TimeUnit.SECONDS)
-            .build(
-                new CacheLoader<ChunkPos, RegionErrorTerrainGenerator>() {
-                    public RegionErrorTerrainGenerator load(ChunkPos key) {
-                        return new RegionErrorTerrainGenerator(
-                            key.x, key.z,
-                            System.nanoTime()
-                            // use the system time as seed
-                            // there is no need to keep the error terrain generation consistent
-                        );
-                    }
-                });
-        
+                .maximumSize(10000)
+                .expireAfterWrite(30, TimeUnit.SECONDS)
+                .build(
+                        new CacheLoader<ChunkPos, RegionErrorTerrainGenerator>() {
+                            public RegionErrorTerrainGenerator load(ChunkPos key) {
+                                return new RegionErrorTerrainGenerator(
+                                        key.x, key.z,
+                                        System.nanoTime()
+                                        // use the system time as seed
+                                        // there is no need to keep the error terrain generation consistent
+                                );
+                            }
+                        });
+
         this.biomeRegistry = biomeRegistry;
         this.noiseRegistry = noiseRegistry;
     }
-    
+
     @Override
     protected Codec<? extends ChunkGenerator> codec() {
         return codec;
     }
-    
+
     @Override
     public CompletableFuture<ChunkAccess> fillFromNoise(Executor executor, Blender blender, RandomState randomState, StructureManager structureManager, ChunkAccess chunkAccess) {
         LevelChunkSection[] sectionArray = chunkAccess.getSections();
@@ -138,38 +138,38 @@ public class ErrorTerrainGenerator extends DelegatedChunkGenerator {
             for (LevelChunkSection chunkSection : locked) {
                 chunkSection.release();
             }
-        
+
             return chunkx;
         }, executor);
     }
-    
+
     public void doPopulateNoise(ChunkAccess chunk) {
         ProtoChunk protoChunk = (ProtoChunk) chunk;
         ChunkPos pos = chunk.getPos();
         Heightmap oceanFloorHeightMap = protoChunk.getOrCreateHeightmapUnprimed(Heightmap.Types.OCEAN_FLOOR_WG);
         Heightmap surfaceHeightMap = protoChunk.getOrCreateHeightmapUnprimed(Heightmap.Types.WORLD_SURFACE_WG);
         BlockPos.MutableBlockPos mutable = new BlockPos.MutableBlockPos();
-        
+
         int regionX = Math.floorDiv(pos.x, regionChunkNum);
         int regionZ = Math.floorDiv(pos.z, regionChunkNum);
         RegionErrorTerrainGenerator generator = Helper.noError(() ->
-            cache.get(new ChunkPos(regionX, regionZ))
+                cache.get(new ChunkPos(regionX, regionZ))
         );
-        
+
         for (int sectionY = 0; sectionY < 16; sectionY++) {
             LevelChunkSection section = protoChunk.getSection(sectionY);
-            
+
             for (int localX = 0; localX < 16; localX++) {
                 for (int localZ = 0; localZ < 16; localZ++) {
                     for (int localY = 0; localY < 16; localY++) {
                         int worldX = pos.x * 16 + localX;
                         int worldY = sectionY * 16 + localY;
                         int worldZ = pos.z * 16 + localZ;
-                        
+
                         BlockState currBlockState = generator.getBlockComposition(
-                            worldX, worldY, worldZ
+                                worldX, worldY, worldZ
                         );
-                        
+
                         if (currBlockState != air) {
                             section.setBlockState(localX, localY, localZ, currBlockState, false);
                             oceanFloorHeightMap.update(localX, worldY, localZ, currBlockState);
@@ -180,5 +180,5 @@ public class ErrorTerrainGenerator extends DelegatedChunkGenerator {
             }
         }
     }
-    
+
 }

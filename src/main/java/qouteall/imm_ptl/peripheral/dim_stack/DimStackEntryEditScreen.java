@@ -50,16 +50,16 @@ public class DimStackEntryEditScreen extends Screen {
         scaleField.setValue(Double.toString(editing.entry.scale));
         scaleField.setHighlightPos(0);//without this the text won't render. mc gui is bugged
         scaleField.setCursorPosition(0);
-        
+
         flipButton = new Button(
-            0, 0, 0, 20,
-            Component.translatable(editing.entry.flipped ? "imm_ptl.enabled" : "imm_ptl.disabled"),
-            button -> {
-                editing.entry.flipped = !editing.entry.flipped;
-                button.setMessage(
-                    Component.translatable(editing.entry.flipped ? "imm_ptl.enabled" : "imm_ptl.disabled")
-                );
-            }
+                0, 0, 0, 20,
+                Component.translatable(editing.entry.flipped ? "imm_ptl.enabled" : "imm_ptl.disabled"),
+                button -> {
+                    editing.entry.flipped = !editing.entry.flipped;
+                    button.setMessage(
+                            Component.translatable(editing.entry.flipped ? "imm_ptl.enabled" : "imm_ptl.disabled")
+                    );
+                }
         );
         
         horizontalRotationField = new EditBox(
@@ -104,80 +104,80 @@ public class DimStackEntryEditScreen extends Screen {
         }
         bedrockBlockField.setCursorPosition(0);
         bedrockBlockField.setHighlightPos(0);
-    
+
         connectsPreviousButton = new Button(
-            0, 0, 0, 20,
-            Component.translatable(editing.entry.connectsPrevious ? "imm_ptl.enabled" : "imm_ptl.disabled"),
-            button -> {
-                editing.entry.connectsPrevious = !editing.entry.connectsPrevious;
-                button.setMessage(
-                    Component.translatable(editing.entry.connectsPrevious ? "imm_ptl.enabled" : "imm_ptl.disabled")
-                );
-            }
+                0, 0, 0, 20,
+                Component.translatable(editing.entry.connectsPrevious ? "imm_ptl.enabled" : "imm_ptl.disabled"),
+                button -> {
+                    editing.entry.connectsPrevious = !editing.entry.connectsPrevious;
+                    button.setMessage(
+                            Component.translatable(editing.entry.connectsPrevious ? "imm_ptl.enabled" : "imm_ptl.disabled")
+                    );
+                }
         );
-        
+
         connectsNextButton = new Button(
-            0, 0, 0, 20,
-            Component.translatable(editing.entry.connectsNext ? "imm_ptl.enabled" : "imm_ptl.disabled"),
-            button -> {
-                editing.entry.connectsNext = !editing.entry.connectsNext;
-                button.setMessage(
-                    Component.translatable(editing.entry.connectsNext ? "imm_ptl.enabled" : "imm_ptl.disabled")
-                );
-            }
+                0, 0, 0, 20,
+                Component.translatable(editing.entry.connectsNext ? "imm_ptl.enabled" : "imm_ptl.disabled"),
+                button -> {
+                    editing.entry.connectsNext = !editing.entry.connectsNext;
+                    button.setMessage(
+                            Component.translatable(editing.entry.connectsNext ? "imm_ptl.enabled" : "imm_ptl.disabled")
+                    );
+                }
         );
-        
+
         finishButton = new Button(
-            0, 0, 0, 20, Component.translatable("imm_ptl.finish"),
-            button -> {
-                try {
-                    editing.entry.horizontalRotation = Double.parseDouble(horizontalRotationField.getValue());
-                }
-                catch (NumberFormatException e) {
-                    e.printStackTrace();
-                    editing.entry.horizontalRotation = 0;
-                }
-                
-                try {
-                    editing.entry.scale = Double.parseDouble(scaleField.getValue());
-                }
-                catch (NumberFormatException e) {
-                    e.printStackTrace();
-                    editing.entry.scale = 1;
-                }
-                
-                try {
-                    if (!topYField.getValue().isEmpty()) {
-                        editing.entry.topY = Integer.parseInt(topYField.getValue());
+                0, 0, 0, 20, Component.translatable("imm_ptl.finish"),
+                button -> {
+                    try {
+                        editing.entry.horizontalRotation = Double.parseDouble(horizontalRotationField.getValue());
                     }
-                    else {
+                    catch (NumberFormatException e) {
+                        e.printStackTrace();
+                        editing.entry.horizontalRotation = 0;
+                    }
+
+                    try {
+                        editing.entry.scale = Double.parseDouble(scaleField.getValue());
+                    }
+                    catch (NumberFormatException e) {
+                        e.printStackTrace();
+                        editing.entry.scale = 1;
+                    }
+
+                    try {
+                        if (!topYField.getValue().isEmpty()) {
+                            editing.entry.topY = Integer.parseInt(topYField.getValue());
+                        }
+                        else {
+                            editing.entry.topY = null;
+                        }
+                    }
+                    catch (NumberFormatException e) {
+                        e.printStackTrace();
                         editing.entry.topY = null;
                     }
-                }
-                catch (NumberFormatException e) {
-                    e.printStackTrace();
-                    editing.entry.topY = null;
-                }
-                
-                try {
-                    if (!bottomYField.getValue().isEmpty()) {
-                        editing.entry.bottomY = Integer.parseInt(bottomYField.getValue());
+
+                    try {
+                        if (!bottomYField.getValue().isEmpty()) {
+                            editing.entry.bottomY = Integer.parseInt(bottomYField.getValue());
+                        }
+                        else {
+                            editing.entry.bottomY = null;
+                        }
                     }
-                    else {
+                    catch (NumberFormatException e) {
+                        e.printStackTrace();
                         editing.entry.bottomY = null;
                     }
+
+                    editing.entry.bedrockReplacementStr = bedrockBlockField.getValue();
+
+                    Minecraft.getInstance().setScreen(parent);
                 }
-                catch (NumberFormatException e) {
-                    e.printStackTrace();
-                    editing.entry.bottomY = null;
-                }
-                
-                editing.entry.bedrockReplacementStr = bedrockBlockField.getValue();
-                
-                Minecraft.getInstance().setScreen(parent);
-            }
         );
-        
+
         this.helpButton = DimStackScreen.createHelpButton(this);
     }
     
@@ -304,9 +304,10 @@ public class DimStackEntryEditScreen extends Screen {
             ),
             GuiHelper.elasticBlankSpace()
         );
-        
+    
         helpButton.x = width - 50;
-        helpButton.y = 5;
+        helpButton.y = (5);
+        helpButton.setWidth(20);
     }
     
     @Override

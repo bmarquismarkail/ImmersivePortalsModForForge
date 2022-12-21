@@ -13,12 +13,12 @@ public interface IENoiseGeneratorSettings {
     public static NoiseGeneratorSettings ip_floatingIslands(){
         throw new RuntimeException();
     }
-    
+
     @Invoker("overworld")
     public static NoiseGeneratorSettings ip_overworld(boolean a, boolean b){
         throw new RuntimeException();
     }
-    
+
     @Invoker("end")
     public static NoiseGeneratorSettings ip_end(){
         throw new RuntimeException();

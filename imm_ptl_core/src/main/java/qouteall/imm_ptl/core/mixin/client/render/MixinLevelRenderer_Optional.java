@@ -32,7 +32,7 @@ public class MixinLevelRenderer_Optional {
     
     //avoid translucent sort while rendering portal
     @Redirect(
-        method = "Lnet/minecraft/client/renderer/LevelRenderer;renderChunkLayer(Lnet/minecraft/client/renderer/RenderType;Lcom/mojang/blaze3d/vertex/PoseStack;DDDLcom/mojang/math/Matrix4f;)V",
+        method = "renderChunkLayer",
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/client/renderer/RenderType;translucent()Lnet/minecraft/client/renderer/RenderType;",
@@ -67,7 +67,7 @@ public class MixinLevelRenderer_Optional {
     }
     
     @Inject(
-        method = "Lnet/minecraft/client/renderer/LevelRenderer;renderChunkLayer(Lnet/minecraft/client/renderer/RenderType;Lcom/mojang/blaze3d/vertex/PoseStack;DDDLcom/mojang/math/Matrix4f;)V",
+        method = "renderChunkLayer",
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/client/renderer/ShaderInstance;apply()V"
@@ -75,8 +75,7 @@ public class MixinLevelRenderer_Optional {
         require = 0
     )
     private void onGetShaderInRenderingLayer(
-        RenderType renderLayer, PoseStack matrices,
-        double x, double y, double z, Matrix4f matrix4f, CallbackInfo ci
+            RenderType pRenderType, PoseStack pPoseStack, double pCamX, double pCamY, double pCamZ, Matrix4f pProjectionMatrix, CallbackInfo ci
     ) {
         FrontClipping.updateClippingEquationUniformForCurrentShader(false);
     }

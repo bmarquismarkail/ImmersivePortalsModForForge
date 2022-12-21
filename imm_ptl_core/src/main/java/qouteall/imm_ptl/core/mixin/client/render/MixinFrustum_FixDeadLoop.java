@@ -17,21 +17,21 @@ import qouteall.q_misc_util.my_util.LimitedLogger;
 public abstract class MixinFrustum_FixDeadLoop {
     @Shadow
     private double camX;
-    
+
     @Shadow
     private double camY;
-    
+
     @Shadow
     private double camZ;
-    
+
     @Shadow
     private Vector4f viewVector;
-    
+
     @Shadow
     protected abstract boolean cubeCompletelyInFrustum(float f, float g, float h, float i, float j, float k);
-    
+
     private static LimitedLogger limitedLogger = new LimitedLogger(10);
-    
+
     /**
      * Make it to not deadloop when using isometric view.
      * Also make it to not deadloop even if the projection matrix is broken. (In normal cases the projection should not be broken.)
@@ -45,16 +45,16 @@ public abstract class MixinFrustum_FixDeadLoop {
         if (TransformationManager.isIsometricView) {
             return (Frustum) (Object) this;
         }
-        
+
         double minX = Math.floor(this.camX / (double) gridSize) * (double) gridSize;
         double minY = Math.floor(this.camY / (double) gridSize) * (double) gridSize;
         double minZ = Math.floor(this.camZ / (double) gridSize) * (double) gridSize;
         double maxX = Math.ceil(this.camX / (double) gridSize) * (double) gridSize;
         double maxY = Math.ceil(this.camY / (double) gridSize) * (double) gridSize;
         double maxZ = Math.ceil(this.camZ / (double) gridSize) * (double) gridSize;
-        
+
         int countLimit = 10; // limit the loop count
-        
+
         while (!this.cubeCompletelyInFrustum((float) (minX - this.camX), (float) (minY - this.camY), (float) (minZ - this.camZ), (float) (maxX - this.camX), (float) (maxY - this.camY), (float) (maxZ - this.camZ))) {
             this.camX -= (double) (this.viewVector.x() * 4.0F);
             this.camY -= (double) (this.viewVector.y() * 4.0F);
@@ -68,7 +68,7 @@ public abstract class MixinFrustum_FixDeadLoop {
                 break;
             }
         }
-        
+
         return (Frustum) (Object) this;
     }
 }

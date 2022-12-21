@@ -14,10 +14,10 @@ import java.util.function.Predicate;
 public class ClassicalForm extends NetherPortalLikeForm {
     public static final Codec<ClassicalForm> codec = RecordCodecBuilder.create(instance -> {
         return instance.group(
-            Registry.BLOCK.byNameCodec().fieldOf("from_frame_block").forGetter(o -> o.fromFrameBlock),
-            Registry.BLOCK.byNameCodec().fieldOf("area_block").forGetter(o -> o.areaBlock),
-            Registry.BLOCK.byNameCodec().fieldOf("to_frame_block").forGetter(o -> o.toFrameBlock),
-            Codec.BOOL.fieldOf("generate_frame_if_not_found").forGetter(o -> o.generateFrameIfNotFound)
+                Registry.BLOCK.byNameCodec().fieldOf("from_frame_block").forGetter(o -> o.fromFrameBlock),
+                Registry.BLOCK.byNameCodec().fieldOf("area_block").forGetter(o -> o.areaBlock),
+                Registry.BLOCK.byNameCodec().fieldOf("to_frame_block").forGetter(o -> o.toFrameBlock),
+                Codec.BOOL.fieldOf("generate_frame_if_not_found").forGetter(o -> o.generateFrameIfNotFound)
         ).apply(instance, instance.stable(ClassicalForm::new));
     });
     

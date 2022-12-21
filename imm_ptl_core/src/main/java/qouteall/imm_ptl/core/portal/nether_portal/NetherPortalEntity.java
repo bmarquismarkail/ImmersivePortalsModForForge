@@ -1,9 +1,5 @@
 package qouteall.imm_ptl.core.portal.nether_portal;
 
-import com.mojang.math.Quaternion;
-import com.mojang.math.Vector3f;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.sounds.SoundEvents;
@@ -14,10 +10,12 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.NetherPortalBlock;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.platform_specific.IPRegistry;
 import qouteall.imm_ptl.core.platform_specific.O_O;
-import qouteall.imm_ptl.core.portal.PortalPlaceholderBlock;
+import qouteall.q_misc_util.my_util.DQuaternion;
 
 public class NetherPortalEntity extends BreakablePortalEntity {
     private static final OverlayInfo overlay_x = new OverlayInfo(
@@ -36,7 +34,7 @@ public class NetherPortalEntity extends BreakablePortalEntity {
         ),
         0.5,
         1,
-        new Quaternion(new Vector3f(1, 0, 0), 90, true)
+        DQuaternion.rotationByDegrees(new Vec3(1, 0, 0), 90)
     );
     private static final OverlayInfo overlay_y_down = new OverlayInfo(
         Blocks.NETHER_PORTAL.defaultBlockState().setValue(
@@ -45,7 +43,7 @@ public class NetherPortalEntity extends BreakablePortalEntity {
         ),
         0.5,
         -1,
-        new Quaternion(new Vector3f(1, 0, 0), 90, true)
+        DQuaternion.rotationByDegrees(new Vec3(1, 0, 0), 90)
     );
     private static final OverlayInfo overlay_z = new OverlayInfo(
         Blocks.NETHER_PORTAL.defaultBlockState().setValue(
@@ -56,9 +54,9 @@ public class NetherPortalEntity extends BreakablePortalEntity {
         0,
         null
     );
-
-
-    public static EntityType<NetherPortalEntity> entityType = IPRegistry.NETHER_PORTAL_NEW.get();
+    
+    
+    public static EntityType<NetherPortalEntity> entityType;
     
     public NetherPortalEntity(
         EntityType<?> entityType_1,
@@ -71,18 +69,18 @@ public class NetherPortalEntity extends BreakablePortalEntity {
     public void tick() {
         super.tick();
     }
-    
+
     @Override
     protected boolean isPortalIntactOnThisSide() {
-        
+
         return blockPortalShape.area.stream()
-            .allMatch(blockPos ->
-                level.getBlockState(blockPos).getBlock() == IPRegistry.NETHER_PORTAL_BLOCK.get()
-            ) &&
-            blockPortalShape.frameAreaWithoutCorner.stream()
                 .allMatch(blockPos ->
-                    O_O.isObsidian(level.getBlockState(blockPos))
-                );
+                        level.getBlockState(blockPos).getBlock() == IPRegistry.NETHER_PORTAL_BLOCK.get()
+                ) &&
+                blockPortalShape.frameAreaWithoutCorner.stream()
+                        .allMatch(blockPos ->
+                                O_O.isObsidian(level.getBlockState(blockPos))
+                        );
     }
     
     @Override
@@ -140,5 +138,10 @@ public class NetherPortalEntity extends BreakablePortalEntity {
         }
         
         return super.getActualOverlay();
+    }
+
+    @Override
+    public boolean alwaysAccepts() {
+        return super.alwaysAccepts();
     }
 }

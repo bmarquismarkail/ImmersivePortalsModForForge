@@ -154,7 +154,7 @@ public class ExampleGuiPortalRendering {
                 DQuaternion.rotationByDegrees(
                     new Vec3(1, 1, 1).normalize(),
                     t1 * 360
-                ).toMcQuaternion()
+                ).toMatrix()
             );
             
             // Determine the camera position

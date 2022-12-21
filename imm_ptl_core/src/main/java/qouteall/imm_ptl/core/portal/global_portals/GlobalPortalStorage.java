@@ -195,7 +195,7 @@ public class GlobalPortalStorage extends SavedData {
         if (tag.contains("version")) {
             version = tag.getInt("version");
         }
-        
+
         if (tag.contains("bedrockReplacement")) {
             bedrockReplacement = NbtUtils.readBlockState(tag.getCompound("bedrockReplacement"));
         }

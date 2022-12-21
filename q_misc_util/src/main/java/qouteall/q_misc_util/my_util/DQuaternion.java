@@ -1,14 +1,14 @@
 package qouteall.q_misc_util.my_util;
 
 
-import com.mojang.math.Quaternion;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.phys.Vec3;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import qouteall.q_misc_util.Helper;
+import com.mojang.math.Quaternion;
+import com.mojang.math.Matrix4f;
 
 import java.util.Objects;
 
@@ -66,6 +66,10 @@ public class DQuaternion {
         return new Quaternion(
             (float) x, (float) y, (float) z, (float) w
         );
+    }
+    
+    public Matrix4f toMatrix() {
+        return new Matrix4f(toMcQuaternion());
     }
     
     /**
@@ -213,8 +217,7 @@ public class DQuaternion {
     public static DQuaternion getCameraRotation(double pitch, double yaw) {
         DQuaternion r1 = rotationByDegrees(new Vec3(1, 0, 0), pitch);
         DQuaternion r2 = rotationByDegrees(new Vec3(0, 1, 0), yaw + 180);
-        DQuaternion result = r1.hamiltonProduct(r2);
-        return result;
+        return r1.hamiltonProduct(r2);
     }
     
     // should be the same as the above

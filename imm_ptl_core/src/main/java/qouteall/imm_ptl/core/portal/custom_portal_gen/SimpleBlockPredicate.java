@@ -74,12 +74,13 @@ public class SimpleBlockPredicate implements Predicate<BlockState> {
         }
         
         ResourceLocation id = new ResourceLocation(string);
-        
+
         TagKey<Block> tagKey = TagKey.create(Registry.BLOCK_REGISTRY, id);
-        
+
         Registry<Block> blockRegistry = server.registryAccess().registry(Registry.BLOCK_REGISTRY).get();
-        
-        boolean knownTagName = blockRegistry.isKnownTagName(tagKey);
+    
+        Optional<HolderSet.Named<Block>> tag1 = blockRegistry.getTag(tagKey);
+        boolean knownTagName = tag1.isPresent();
         
         if (knownTagName) {
             return DataResult.success(new SimpleBlockPredicate(string, tagKey));

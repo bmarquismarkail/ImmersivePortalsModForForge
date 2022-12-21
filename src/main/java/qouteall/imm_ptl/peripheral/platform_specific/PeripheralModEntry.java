@@ -25,11 +25,11 @@ import java.util.List;
 @Mod("immersive_portals")
 public class PeripheralModEntry {
     public static class PortalHelperItem extends BlockItem {
-        
+
         public PortalHelperItem(Block block, Properties settings) {
             super(block, settings);
         }
-        
+
         @Override
         public InteractionResult useOn(UseOnContext context) {
             if (context.getLevel().isClientSide()) {
@@ -37,14 +37,14 @@ public class PeripheralModEntry {
                     IPOuterClientMisc.onClientPlacePortalHelper();
                 }
             }
-            
+
             return super.useOn(context);
         }
-        
+
         @Override
         public void appendHoverText(ItemStack stack, @Nullable Level world, List<Component> tooltip, TooltipFlag context) {
             super.appendHoverText(stack, world, tooltip, context);
-            
+
             tooltip.add(Component.translatable("imm_ptl.portal_helper_tooltip"));
         }
     }
@@ -58,7 +58,7 @@ public class PeripheralModEntry {
 
     private static void registerBlockItems() {
         //PeripheralModMain.registerCommandStickTypes();
-        
+
         CommandStickItem.init();
     }
 
@@ -68,7 +68,7 @@ public class PeripheralModEntry {
         BLOCKS.register(FMLJavaModLoadingContext.get().getModEventBus());
         ITEMS.register(FMLJavaModLoadingContext.get().getModEventBus());
         CommandStickItem.CommandStickData.register(FMLJavaModLoadingContext.get().getModEventBus());
-        
+
         PeripheralModMain.init();
     }
 

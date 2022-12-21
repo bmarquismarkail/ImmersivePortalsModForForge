@@ -38,6 +38,7 @@ public abstract class MixinClientPacketListener implements IEClientPlayNetworkHa
     @Shadow
     private ClientLevel level;
     
+    @Final
     @Shadow
     private Minecraft minecraft;
     
@@ -53,9 +54,9 @@ public abstract class MixinClientPacketListener implements IEClientPlayNetworkHa
     protected abstract void applyLightData(int x, int z, ClientboundLightUpdatePacketData data);
     
     @Shadow public abstract RegistryAccess registryAccess();
-    
+
     @Shadow private RegistryAccess.Frozen registryAccess;
-    
+
     @Override
     public void ip_setWorld(ClientLevel world) {
         this.level = world;
@@ -76,9 +77,7 @@ public abstract class MixinClientPacketListener implements IEClientPlayNetworkHa
         at = @At("RETURN")
     )
     private void onInit(
-        Minecraft client,
-        Screen screen, Connection connection,
-        GameProfile profile, ClientTelemetryManager telemetrySender, CallbackInfo ci
+            Minecraft pMinecraft, Screen pCallbackScreen, Connection pConnection, GameProfile pLocalGameProfile, ClientTelemetryManager pTelemetryManager, CallbackInfo ci
     ) {
         isReProcessingPassengerPacket = false;
     }
@@ -112,6 +111,7 @@ public abstract class MixinClientPacketListener implements IEClientPlayNetworkHa
         
         if (world != null) {
             if (world.dimension() != playerDimension) {
+                assert Minecraft.getInstance().player != null;
                 if (!Minecraft.getInstance().player.isRemoved()) {
                     Helper.log(String.format(
                         "denied position packet %s %s %s %s",
@@ -203,10 +203,5 @@ public abstract class MixinClientPacketListener implements IEClientPlayNetworkHa
                 }
             }
         }
-    }
-    
-    @Override
-    public void portal_setRegistryManager(RegistryAccess.Frozen arg) {
-        registryAccess = arg;
     }
 }

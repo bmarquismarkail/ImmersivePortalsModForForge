@@ -15,7 +15,7 @@ public class MixinIrisClearPass {
     @Inject(
         method = "execute", at = @At("HEAD"), cancellable = true
     )
-    private void onExecute(Vector4f par1, CallbackInfo ci) {
+    private void onExecute(Vector4f defaultClearColor, CallbackInfo ci) {
         if (IPCGlobal.renderer instanceof ExperimentalIrisPortalRenderer) {
             if (PortalRendering.isRendering()) {
                 ci.cancel();

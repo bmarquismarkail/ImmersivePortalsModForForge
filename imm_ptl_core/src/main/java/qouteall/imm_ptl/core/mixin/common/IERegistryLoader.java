@@ -19,10 +19,10 @@ public interface IERegistryLoader {
     public static RegistryLoader construct(RegistryResourceAccess registryResourceAccess) {
         throw new RuntimeException();
     }
-    
+
     @Invoker("overrideRegistryFromResources")
     public <E> DataResult<Registry<E>> ip_overrideRegistryFromResources(
-        WritableRegistry<E> writableRegistry, ResourceKey<? extends Registry<E>> resourceKey,
-        Codec<E> codec, DynamicOps<JsonElement> dynamicOps
+            WritableRegistry<E> writableRegistry, ResourceKey<? extends Registry<E>> resourceKey,
+            Codec<E> codec, DynamicOps<JsonElement> dynamicOps
     );
 }

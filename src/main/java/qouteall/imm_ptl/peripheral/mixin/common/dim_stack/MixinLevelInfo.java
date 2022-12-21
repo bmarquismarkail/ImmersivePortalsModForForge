@@ -13,24 +13,5 @@ import qouteall.imm_ptl.peripheral.dim_stack.DimStackGameRule;
 
 @Mixin(LevelSettings.class)
 public class MixinLevelInfo {
-    
-    // used for upgrading legacy dimension stack
-    @Inject(
-        method = "Lnet/minecraft/world/level/LevelSettings;parse(Lcom/mojang/serialization/Dynamic;Lnet/minecraft/world/level/DataPackConfig;)Lnet/minecraft/world/level/LevelSettings;",
-        at = @At("RETURN"),
-        cancellable = true
-    )
-    private static void onReadLevelInfoFromDynamic(
-        Dynamic<?> dynamic,
-        DataPackConfig dataPackSettings,
-        CallbackInfoReturnable<LevelSettings> cir
-    ) {
-        DataResult<?> altiusElement = dynamic.getElement("altius");
-        Object obj = altiusElement.get().left().orElse(null);
-        if (obj != null) {
-            if (obj instanceof CompoundTag) {
-                DimStackGameRule.upgradeOldDimensionStack();
-            }
-        }
-    }
+
 }

@@ -22,8 +22,7 @@ public class MiscHelper {
     ) {
         MappedRegistry<T> newRegistry = new MappedRegistry<>(
             registry.key(),
-            registry.elementsLifecycle(),
-            null
+            registry.lifecycle(),null
         );
         
         for (Map.Entry<ResourceKey<T>, T> entry : registry.entrySet()) {
@@ -40,7 +39,7 @@ public class MiscHelper {
     }
     
     /**
-     * {@link ReentrantThreadExecutor#shouldExecuteAsync()}
+     * { ReentrantThreadExecutor#shouldExecuteAsync()}
      * The execution may get deferred on the render thread
      */
     @OnlyIn(Dist.CLIENT)

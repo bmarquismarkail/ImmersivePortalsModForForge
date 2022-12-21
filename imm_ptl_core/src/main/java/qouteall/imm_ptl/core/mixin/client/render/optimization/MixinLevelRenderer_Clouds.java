@@ -47,24 +47,23 @@ public abstract class MixinLevelRenderer_Clouds {
     private int ticks;
     
     @Inject(
-        method = "Lnet/minecraft/client/renderer/LevelRenderer;renderClouds(Lcom/mojang/blaze3d/vertex/PoseStack;Lcom/mojang/math/Matrix4f;FDDD)V",
+        method = "renderClouds",
         at = @At("HEAD")
     )
     private void onBeginRenderClouds(
-        PoseStack matrices, Matrix4f matrix4f,
-        float tickDelta, double cameraX, double cameraY, double cameraZ, CallbackInfo ci
+            PoseStack pPoseStack, Matrix4f pProjectionMatrix, float pPartialTick, double pCamX, double pCamY, double pCamZ, CallbackInfo ci
     ) {
         if (RenderStates.getRenderedPortalNum() == 0) {
             return;
         }
         
         if (IPGlobal.cloudOptimization) {
-            portal_onBeginCloudRendering(tickDelta, cameraX, cameraY, cameraZ);
+            portal_onBeginCloudRendering(pPartialTick, pCamX, pCamY, pCamZ);
         }
     }
     
     @Inject(
-        method = "Lnet/minecraft/client/renderer/LevelRenderer;renderClouds(Lcom/mojang/blaze3d/vertex/PoseStack;Lcom/mojang/math/Matrix4f;FDDD)V",
+        method = "renderClouds",
         at = @At("RETURN")
     )
     private void onEndRenderClouds(PoseStack matrices, Matrix4f matrix4f, float f, double d, double e, double g, CallbackInfo ci) {

@@ -1,7 +1,5 @@
 package qouteall.imm_ptl.core.portal.custom_portal_gen.form;
 
-import com.mojang.math.Quaternion;
-import com.mojang.math.Vector3f;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.ListCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -12,6 +10,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.platform_specific.IPRegistry;
 import qouteall.imm_ptl.core.portal.PortalExtension;
@@ -22,6 +21,7 @@ import qouteall.imm_ptl.core.portal.custom_portal_gen.SimpleBlockPredicate;
 import qouteall.imm_ptl.core.portal.nether_portal.BlockPortalShape;
 import qouteall.imm_ptl.core.portal.nether_portal.GeneralBreakablePortal;
 import qouteall.imm_ptl.core.portal.nether_portal.NetherPortalGeneration;
+import qouteall.q_misc_util.my_util.DQuaternion;
 import qouteall.q_misc_util.my_util.IntBox;
 
 import javax.annotation.Nullable;
@@ -190,11 +190,10 @@ public class FlippingFloorSquareForm extends PortalGenForm {
         
         pa.setDestination(toShape.innerAreaBox.getCenterVec());
         pa.dimensionTo = toWorld.dimension();
-        pa.rotation = new Quaternion(
-            new Vector3f(1, 0, 0),
-            180,
-            true
-        );
+        pa.setRotation(DQuaternion.rotationByDegrees(
+            new Vec3(1, 0, 0),
+            180
+        ));
         
         GeneralBreakablePortal pb = (GeneralBreakablePortal)
             PortalManipulation.createReversePortal(pa, GeneralBreakablePortal.entityType);

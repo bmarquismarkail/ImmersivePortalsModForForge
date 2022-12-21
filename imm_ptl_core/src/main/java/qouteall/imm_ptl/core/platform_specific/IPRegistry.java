@@ -29,16 +29,16 @@ public class IPRegistry {
     @SubscribeEvent
     public static void registerBlocks(RegisterEvent event) {
         event.register(ForgeRegistries.Keys.BLOCKS, handler -> handler.register(
-            new ResourceLocation("imm_ptl_core", "nether_portal_block"),
-            new PortalPlaceholderBlock(BlockBehaviour.Properties
-                .of(Material.PORTAL)
-                .noCollission()
-                .sound(SoundType.GLASS)
-                .strength(1.0f, 0)
-                .noOcclusion()
-                .noLootTable()
-                .lightLevel((s)->15)
-            )));
+                new ResourceLocation("imm_ptl_core", "nether_portal_block"),
+                new PortalPlaceholderBlock(BlockBehaviour.Properties
+                        .of(Material.PORTAL)
+                        .noCollission()
+                        .sound(SoundType.GLASS)
+                        .strength(1.0f, 0)
+                        .noOcclusion()
+                        .noLootTable()
+                        .lightLevel((s)->15)
+                )));
     }
 
     public static final DeferredRegister<EntityType<?>> ENTITY_TYPES =
@@ -127,7 +127,7 @@ public class IPRegistry {
     public static void registerEntities(IEventBus bus) {
         ENTITY_TYPES.register(bus);
     }
-    
+
     public static void registerChunkGenerators() {
         //it should not be serialized
 //        Registry.register(
@@ -135,6 +135,6 @@ public class IPRegistry {
 //            new Identifier("immersive_portals:error_terrain_gen"),
 //            ErrorTerrainGenerator.codec
 //        );
-        
+
     }
 }

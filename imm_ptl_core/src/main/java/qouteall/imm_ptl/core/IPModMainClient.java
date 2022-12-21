@@ -17,10 +17,18 @@ import qouteall.imm_ptl.core.compat.iris_compatibility.IrisInterface;
 import qouteall.imm_ptl.core.compat.iris_compatibility.IrisPortalRenderer;
 import qouteall.imm_ptl.core.miscellaneous.DubiousThings;
 import qouteall.imm_ptl.core.miscellaneous.GcMonitor;
-import qouteall.imm_ptl.core.portal.PortalRenderInfo;
+import qouteall.imm_ptl.core.platform_specific.IPNetworkingClient;
 import qouteall.imm_ptl.core.portal.animation.ClientPortalAnimationManagement;
+import qouteall.imm_ptl.core.portal.PortalRenderInfo;
 import qouteall.imm_ptl.core.portal.animation.StableClientTimer;
-import qouteall.imm_ptl.core.render.*;
+import qouteall.imm_ptl.core.render.CrossPortalEntityRenderer;
+import qouteall.imm_ptl.core.render.MyBuiltChunkStorage;
+import qouteall.imm_ptl.core.render.MyRenderHelper;
+import qouteall.imm_ptl.core.render.PortalRenderer;
+import qouteall.imm_ptl.core.render.RendererUsingFrameBuffer;
+import qouteall.imm_ptl.core.render.RendererUsingStencil;
+import qouteall.imm_ptl.core.render.ShaderCodeTransformation;
+import qouteall.imm_ptl.core.render.VisibleSectionDiscovery;
 import qouteall.imm_ptl.core.render.context_management.CloudContext;
 import qouteall.imm_ptl.core.render.context_management.PortalRendering;
 import qouteall.imm_ptl.core.render.optimization.GLResourceCache;
@@ -110,9 +118,10 @@ public class IPModMainClient {
             })
         ));
     }
-
     @SubscribeEvent
     public static void init(FMLClientSetupEvent event) {
+        //IPNetworkingClient.init();
+        
         ClientWorldLoader.init();
         
         Minecraft.getInstance().execute(() -> {

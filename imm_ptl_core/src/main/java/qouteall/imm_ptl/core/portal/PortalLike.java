@@ -1,16 +1,15 @@
 package qouteall.imm_ptl.core.portal;
 
-import com.mojang.math.Matrix4f;
-import com.mojang.math.Quaternion;
-import it.unimi.dsi.fastutil.objects.ObjectList;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import com.mojang.math.Matrix4f;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.my_util.BoxPredicate;
+import qouteall.q_misc_util.my_util.DQuaternion;
 import qouteall.q_misc_util.my_util.Plane;
 
 import javax.annotation.Nullable;
@@ -65,7 +64,7 @@ public interface PortalLike {
     Plane getInnerClipping();
     
     @Nullable
-    Quaternion getRotation();
+    DQuaternion getRotation();
     
     double getScale();
     

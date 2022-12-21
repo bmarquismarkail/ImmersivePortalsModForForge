@@ -17,11 +17,8 @@ public class MixinLevelRenderer_BeforeIris {
     // inject it after Iris, run before Iris
     @Inject(method = "renderLevel", at = @At(value = "CONSTANT", args = "stringValue=translucent"))
     private void iris$beginTranslucents(
-        PoseStack poseStack, float tickDelta, long limitTime,
-        boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer,
-        LightTexture lightTexture, Matrix4f projection,
-        CallbackInfo ci
+            PoseStack pPoseStack, float pPartialTick, long pFinishNanoTime, boolean pRenderBlockOutline, Camera pCamera, GameRenderer pGameRenderer, LightTexture pLightTexture, Matrix4f pProjectionMatrix, CallbackInfo ci
     ) {
-        IPCGlobal.renderer.onBeginIrisTranslucentRendering(poseStack);
+        IPCGlobal.renderer.onBeginIrisTranslucentRendering(pPoseStack);
     }
 }

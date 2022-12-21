@@ -1,11 +1,9 @@
 package qouteall.imm_ptl.core.render;
 
-import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Matrix4f;
-import com.mojang.math.Quaternion;
 import com.mojang.math.Vector3f;
 import com.mojang.math.Vector4f;
 import net.minecraftforge.api.distmarker.Dist;
@@ -147,7 +145,7 @@ public class OverlayRendering {
             );
             
             if (overlay.rotation() != null) {
-                matrixStack.mulPose(overlay.rotation());
+                matrixStack.mulPose(overlay.rotation().toMcQuaternion());
             }
             
             for (BakedQuad quad : quads) {

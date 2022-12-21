@@ -1,10 +1,8 @@
 package qouteall.q_misc_util.dimension;
 
 import com.google.gson.JsonElement;
-import com.google.gson.JsonIOException;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.google.gson.JsonSyntaxException;
 import com.mojang.datafixers.util.Either;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.DataResult;
@@ -20,58 +18,50 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.levelgen.WorldGenSettings;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.Validate;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.api.DimensionAPI;
-import qouteall.q_misc_util.forge.events.ServerDimensionsLoadEvent;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Path;
 
 public class ExtraDimensionStorage {
-    
+
     public static void init() {
         MinecraftForge.EVENT_BUS.register(ExtraDimensionStorage.class);
 //        DimensionAPI.serverDimensionsLoadEvent.register( //TODO Reimplement this !DONE
 //            ExtraDimensionStorage::loadExtraDimensions
 //        );
-    }
 
-    @SubscribeEvent
-    public static void serverDimensionsLoad(ServerDimensionsLoadEvent event) {
-        loadExtraDimensions(event.generatorOptions, event.registryManager);
     }
-    
-    private static void loadExtraDimensions(WorldGenSettings worldGenSettings, RegistryAccess registryAccess) {
-        MinecraftServer server = MiscHelper.getServer();
-        if (server != null && server.isRunning()) {
-            RegistryOps<JsonElement> ops = RegistryOps.create(JsonOps.INSTANCE, registryAccess);
-            Registry<LevelStem> dimensionRegistry = worldGenSettings.dimensions();
-            
-            Path extraStorageFolderPath = getExtraStorageFolderPath();
-            File[] subFiles = extraStorageFolderPath.toFile().listFiles();
-            if (subFiles != null) {
-                for (File nameSpace : subFiles) {
-                    if (nameSpace.isDirectory()) {
-                        for (File file : nameSpace.listFiles()) {
-                            ResourceLocation id = new ResourceLocation(
-                                nameSpace.getName(), FilenameUtils.getBaseName(file.getName())
-                            );
-                            
-                            readFile(ops, dimensionRegistry, file, id);
+        private static void loadExtraDimensions(WorldGenSettings worldGenSettings, RegistryAccess registryAccess) {
+            MinecraftServer server = MiscHelper.getServer();
+            if (server != null && server.isRunning()) {
+                RegistryOps<JsonElement> ops = RegistryOps.create(JsonOps.INSTANCE, registryAccess);
+                Registry<LevelStem> dimensionRegistry = worldGenSettings.dimensions();
+
+                Path extraStorageFolderPath = getExtraStorageFolderPath();
+                File[] subFiles = extraStorageFolderPath.toFile().listFiles();
+                if (subFiles != null) {
+                    for (File nameSpace : subFiles) {
+                        if (nameSpace.isDirectory()) {
+                            for (File file : nameSpace.listFiles()) {
+                                ResourceLocation id = new ResourceLocation(
+                                        nameSpace.getName(), FilenameUtils.getBaseName(file.getName())
+                                );
+
+                                readFile(ops, dimensionRegistry, file, id);
+                            }
                         }
                     }
                 }
             }
         }
-    }
     
     private static void readFile(
         RegistryOps<JsonElement> ops, Registry<LevelStem> dimensionRegistry,
