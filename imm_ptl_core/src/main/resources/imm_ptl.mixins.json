@@ -44,8 +44,6 @@
     "common.other_sync.MixinPlayerList",
     "common.portal_generation.MixinItemEntity_P",
     "common.portal_generation.MixinItemStack",
-    "common.portal_generation.MixinMinecraftServer_P",
-    "common.portal_generation.MixinPlayerList_P",
     "common.position_sync.MixinPlayerPositionLookS2CPacket",
     "common.position_sync.MixinServerboundMovePlayerPacket_S",
     "common.position_sync.MixinServerboundMovePlayerPacketPos",
