@@ -10,6 +10,7 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.LightTexture;
@@ -372,7 +373,8 @@ public abstract class MixinLevelRenderer implements IEWorldRenderer {
         }
     }
     
-    //render player itself when rendering portal
+    // @Inject does not allow getting the entity reference
+    // maybe needs Mixin Extra
     @Redirect(
         method = "renderLevel",
         at = @At(
@@ -390,25 +392,6 @@ public abstract class MixinLevelRenderer implements IEWorldRenderer {
         PoseStack matrixStack,
         MultiBufferSource vertexConsumerProvider
     ) {
-        Camera camera = Minecraft.getInstance().gameRenderer.getMainCamera();
-        if (entity == camera.getEntity() && WorldRenderInfo.isRendering()) { //player
-            if (CrossPortalEntityRenderer.shouldRenderEntityNow(entity)) {
-                MyGameRenderer.renderPlayerItself(() -> {
-                    if (CrossPortalEntityRenderer.shouldRenderPlayerNormally(entity)) {
-                        CrossPortalEntityRenderer.beforeRenderingEntity(entity, matrixStack);
-                        renderEntity(
-                            entity,
-                            cameraX, cameraY, cameraZ,
-                            tickDelta,
-                            matrixStack, vertexConsumerProvider
-                        );
-                        CrossPortalEntityRenderer.afterRenderingEntity(entity);
-                    }
-                });
-                return;
-            }
-        }
-        
         CrossPortalEntityRenderer.beforeRenderingEntity(entity, matrixStack);
         renderEntity(
             entity,
@@ -532,6 +515,21 @@ public abstract class MixinLevelRenderer implements IEWorldRenderer {
     )
     private void onRenderSkyEnd(PoseStack poseStack, Matrix4f matrix4f, float f, Camera camera, boolean bl, Runnable runnable, CallbackInfo ci) {
         MyRenderHelper.recoverFaceCulling();
+    }
+    
+    // correct the eye position for sky rendering
+    @Redirect(
+        method = "renderSky",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/client/player/LocalPlayer;getEyePosition(F)Lnet/minecraft/world/phys/Vec3;"
+        )
+    )
+    private Vec3 redirectGetEyePositionInSkyRendering(LocalPlayer player, float partialTicks) {
+        if (WorldRenderInfo.isRendering()) {
+            return WorldRenderInfo.getCameraPos();
+        }
+        return player.getEyePosition(partialTicks);
     }
     
     @Inject(

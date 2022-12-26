@@ -122,19 +122,7 @@ public class MyGameRenderer {
             client.smartCull = false;
         }
         
-        Entity cameraEntity = client.cameraEntity;
-        
-        Vec3 oldEyePos = McHelper.getEyePos(cameraEntity);
-        Vec3 oldLastTickEyePos = McHelper.getLastTickEyePos(cameraEntity);
-        
-        ResourceKey<Level> oldEntityDimension = cameraEntity.level.dimension();
-        ClientLevel oldEntityWorld = ((ClientLevel) cameraEntity.level);
-        
         ResourceKey<Level> newDimension = newWorld.dimension();
-        
-        //switch the camera entity pos
-        McHelper.setEyePos(cameraEntity, thisTickCameraPos, lastTickCameraPos);
-        cameraEntity.level = newWorld;
         
         LevelRenderer worldRenderer = ClientWorldLoader.getWorldRenderer(newDimension);
         
@@ -148,6 +136,7 @@ public class MyGameRenderer {
         Camera newCamera = new Camera();
         
         //store old state
+        ClientLevel oldWorld = client.level;
         LevelRenderer oldWorldRenderer = client.levelRenderer;
         LightTexture oldLightmap = client.gameRenderer.lightTexture();
         boolean oldNoClip = client.player.noPhysics;
@@ -225,13 +214,13 @@ public class MyGameRenderer {
         //recover
         
         ((IEMinecraftClient) client).setWorldRenderer(oldWorldRenderer);
-        client.level = oldEntityWorld;
+        client.level = oldWorld;
         ieGameRenderer.setLightmapTextureManager(oldLightmap);
-        client.getBlockEntityRenderDispatcher().level = oldEntityWorld;
+        client.getBlockEntityRenderDispatcher().level = oldWorld;
         client.player.noPhysics = oldNoClip;
         client.gameRenderer.setRenderHand(oldDoRenderHand);
         
-        ((IEParticleManager) client.particleEngine).ip_setWorld(oldEntityWorld);
+        ((IEParticleManager) client.particleEngine).ip_setWorld(oldWorld);
         client.hitResult = oldCrosshairTarget;
         ieGameRenderer.setCamera(oldCamera);
         
@@ -263,35 +252,7 @@ public class MyGameRenderer {
         
         CHelper.checkGlError();
         
-        //restore the camera entity pos
-        cameraEntity.level = oldEntityWorld;
-        McHelper.setEyePos(cameraEntity, oldEyePos, oldLastTickEyePos);
-        
         client.smartCull = true;
-    }
-    
-    public static void renderPlayerItself(Runnable doRenderEntity) {
-        EntityRenderDispatcher entityRenderDispatcher =
-            ((IEWorldRenderer) client.levelRenderer).ip_getEntityRenderDispatcher();
-        PlayerInfo playerListEntry = CHelper.getClientPlayerListEntry();
-        GameType originalGameMode = RenderStates.originalGameMode;
-        
-        Entity player = client.cameraEntity;
-        assert player != null;
-        
-        Vec3 oldPos = player.position();
-        Vec3 oldLastTickPos = McHelper.lastTickPosOf(player);
-        GameType oldGameMode = playerListEntry.getGameMode();
-        
-        McHelper.setPosAndLastTickPos(
-            player, RenderStates.originalPlayerPos, RenderStates.originalPlayerLastTickPos
-        );
-        
-        doRenderEntity.run();
-        
-        McHelper.setPosAndLastTickPos(
-            player, oldPos, oldLastTickPos
-        );
     }
     
     @IPVanillaCopy
