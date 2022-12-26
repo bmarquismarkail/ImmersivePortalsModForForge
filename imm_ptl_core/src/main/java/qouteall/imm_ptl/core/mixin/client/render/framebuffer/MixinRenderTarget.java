@@ -82,8 +82,7 @@ public abstract class MixinRenderTarget implements IEFrameBuffer {
         method = "Lcom/mojang/blaze3d/pipeline/RenderTarget;createBuffers(IIZ)V",
         at = @At(
             value = "INVOKE",
-            target = "Lcom/mojang/blaze3d/platform/GlStateManager;_texImage2D(IIIIIIIILjava/nio/IntBuffer;)V",
-            remap = false
+            target = "Lcom/mojang/blaze3d/platform/GlStateManager;_texImage2D(IIIIIIIILjava/nio/IntBuffer;)V"
         )
     )
     private void redirectTexImage2d(
@@ -117,8 +116,7 @@ public abstract class MixinRenderTarget implements IEFrameBuffer {
         method = "Lcom/mojang/blaze3d/pipeline/RenderTarget;createBuffers(IIZ)V",
         at = @At(
             value = "INVOKE",
-            target = "Lcom/mojang/blaze3d/platform/GlStateManager;_glFramebufferTexture2D(IIIII)V",
-            remap = false
+            target = "Lcom/mojang/blaze3d/platform/GlStateManager;_glFramebufferTexture2D(IIIII)V"
         )
     )
     private void redirectFrameBufferTexture2d(

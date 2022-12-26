@@ -338,8 +338,7 @@ public abstract class MixinLevelRenderer implements IEWorldRenderer {
         method = "renderLevel",
         at = @At(
             value = "INVOKE",
-            target = "Lcom/mojang/blaze3d/systems/RenderSystem;clear(IZ)V",
-            remap = false
+            target = "Lcom/mojang/blaze3d/systems/RenderSystem;clear(IZ)V"
         )
     )
     private void redirectClearing(int int_1, boolean boolean_1) {
