@@ -37,7 +37,11 @@ public class ExtraDimensionStorage {
 //        DimensionAPI.serverDimensionsLoadEvent.register( //TODO Reimplement this !DONE
 //            ExtraDimensionStorage::loadExtraDimensions
 //        );
+    }
 
+    @SubscribeEvent
+    public static void serverDimensionsLoad(ServerDimensionsLoadEvent event) {
+        loadExtraDimensions(event.generatorOptions, event.registryManager);
     }
         private static void loadExtraDimensions(WorldGenSettings worldGenSettings, RegistryAccess registryAccess) {
             MinecraftServer server = MiscHelper.getServer();

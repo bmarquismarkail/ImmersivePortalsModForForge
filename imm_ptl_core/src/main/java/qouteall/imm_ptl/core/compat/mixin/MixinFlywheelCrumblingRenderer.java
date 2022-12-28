@@ -1,9 +1,9 @@
 package qouteall.imm_ptl.core.compat.mixin;
 
-import com.jozufozu.flywheel.event.ReloadRenderersEvent;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Coerce;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import qouteall.imm_ptl.core.ClientWorldLoader;
@@ -16,7 +16,7 @@ public class MixinFlywheelCrumblingRenderer {
         method = "onReloadRenderers", at = @At("HEAD"),
         cancellable = true
     )
-    private static void onInvalidateAll(ReloadRenderersEvent event, CallbackInfo ci) {
+    private static void onInvalidateAll(@Coerce Object obj, CallbackInfo ci) {
         if (ClientWorldLoader.getIsCreatingClientWorld()) {
             ci.cancel();
         }

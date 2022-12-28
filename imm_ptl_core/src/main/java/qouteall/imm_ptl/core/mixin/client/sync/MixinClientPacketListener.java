@@ -204,4 +204,9 @@ public abstract class MixinClientPacketListener implements IEClientPlayNetworkHa
             }
         }
     }
+    
+    @Override
+    public void portal_setRegistryManager(RegistryAccess.Frozen arg) {
+        registryAccess = arg;
+    }
 }

@@ -145,6 +145,11 @@ public abstract class DelegatedChunkGenerator extends ChunkGenerator {
     }
     
     @Override
+    public boolean hasStructureChunkInRange(Holder<StructureSet> holder, RandomState randomState, long l, int i, int j, int k) {
+        return delegate.hasStructureChunkInRange(holder, randomState, l, i, j, k);
+    }
+    
+    @Override
     public int getSpawnHeight(LevelHeightAccessor level) {
         return delegate.getSpawnHeight(level);
     }
@@ -160,6 +165,11 @@ public abstract class DelegatedChunkGenerator extends ChunkGenerator {
     }
     
     @Override
+    public void createStructures(RegistryAccess registryAccess, RandomState randomState, StructureManager structureManager, ChunkAccess chunkAccess, StructureTemplateManager structureTemplateManager, long l) {
+        delegate.createStructures(registryAccess, randomState, structureManager, chunkAccess, structureTemplateManager, l);
+    }
+    
+    @Override
     public void createReferences(WorldGenLevel worldGenLevel, StructureManager structureManager, ChunkAccess chunkAccess) {
         delegate.createReferences(worldGenLevel, structureManager, chunkAccess);
     }
@@ -172,6 +182,17 @@ public abstract class DelegatedChunkGenerator extends ChunkGenerator {
     @Override
     public int getFirstOccupiedHeight(int i, int j, Heightmap.Types types, LevelHeightAccessor levelHeightAccessor, RandomState randomState) {
         return delegate.getFirstOccupiedHeight(i, j, types, levelHeightAccessor, randomState);
+    }
+    
+    @Override
+    public void ensureStructuresGenerated(RandomState randomState) {
+        delegate.ensureStructuresGenerated(randomState);
+    }
+    
+    @Nullable
+    @Override
+    public List<ChunkPos> getRingPositionsFor(ConcentricRingsStructurePlacement concentricRingsStructurePlacement, RandomState randomState) {
+        return delegate.getRingPositionsFor(concentricRingsStructurePlacement, randomState);
     }
     
     @Override

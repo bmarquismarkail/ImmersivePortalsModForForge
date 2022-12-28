@@ -23,55 +23,61 @@ public class DimensionMisc {
     public static void addMissingVanillaDimensions(WorldGenSettings generatorOptions, RegistryAccess registryManager) {
         // probably no longer needed
         
-//        Registry<LevelStem> registry = generatorOptions.dimensions();
-//        long seed = generatorOptions.seed();
-//        if (!registry.keySet().contains(LevelStem.NETHER.location())) {
-//            logger.error("Missing the nether. This may be caused by DFU. Trying to fix");
-//
-//            WorldPreset worldPreset = BuiltinRegistries.WORLD_PRESET.stream().findFirst().orElseThrow();
-//
-//            WorldGenSettings worldGenSettings = worldPreset.recreateWorldGenSettings(generatorOptions);
-//
-//            LevelStem levelStem = worldGenSettings.dimensions().get(LevelStem.NETHER);
-//
-//            if (levelStem != null) {
-//                DimensionAPI.addDimension(
-//                    registry,
-//                    LevelStem.NETHER.location(),
-//                    levelStem.typeHolder(),
-//                    levelStem.generator()
-//                );
-//            }
-//            else {
-//                Helper.err("cannot create default nether");
-//            }
-//        }
-//
-//        if (!registry.keySet().contains(LevelStem.END.location())) {
-//            logger.error("Missing the end. This may be caused by DFU. Trying to fix");
-//
-//            WorldPreset worldPreset = BuiltinRegistries.WORLD_PRESET.stream().findFirst().orElseThrow();
-//
-//            WorldGenSettings worldGenSettings = worldPreset.recreateWorldGenSettings(generatorOptions);
-//
-//            LevelStem levelStem = worldGenSettings.dimensions().get(LevelStem.END);
-//
-//            if (levelStem != null) {
-//                DimensionAPI.addDimension(
-//                    registry,
-//                    LevelStem.END.location(),
-//                    levelStem.typeHolder(),
-//                    levelStem.generator()
-//                );
-//            }
-//            else {
-//                Helper.err("cannot create default end");
-//            }
-//        }
+        Registry<LevelStem> registry = generatorOptions.dimensions();
+        long seed = generatorOptions.seed();
+        if (!registry.keySet().contains(LevelStem.NETHER.location())) {
+            logger.error("Missing the nether. This may be caused by DFU. Trying to fix");
+            
+            WorldPreset worldPreset = BuiltinRegistries.WORLD_PRESET.stream().findFirst().orElseThrow();
+            
+            WorldGenSettings worldGenSettings = worldPreset.recreateWorldGenSettings(generatorOptions);
+            
+            LevelStem levelStem = worldGenSettings.dimensions().get(LevelStem.NETHER);
+            
+            if (levelStem != null) {
+                DimensionAPI.addDimension(
+                    registry,
+                    LevelStem.NETHER.location(),
+                    levelStem.typeHolder(),
+                    levelStem.generator()
+                );
+            }
+            else {
+                Helper.err("cannot create default nether");
+            }
+        }
+        
+        if (!registry.keySet().contains(LevelStem.END.location())) {
+            logger.error("Missing the end. This may be caused by DFU. Trying to fix");
+            
+            WorldPreset worldPreset = BuiltinRegistries.WORLD_PRESET.stream().findFirst().orElseThrow();
+            
+            WorldGenSettings worldGenSettings = worldPreset.recreateWorldGenSettings(generatorOptions);
+            
+            LevelStem levelStem = worldGenSettings.dimensions().get(LevelStem.END);
+            
+            if (levelStem != null) {
+                DimensionAPI.addDimension(
+                    registry,
+                    LevelStem.END.location(),
+                    levelStem.typeHolder(),
+                    levelStem.generator()
+                );
+            }
+            else {
+                Helper.err("cannot create default end");
+            }
+        }
     }
     
     public static void init() {
-//        DimensionAPI.serverDimensionsLoadEvent.register(DimensionMisc::addMissingVanillaDimensions);
+        MinecraftForge.EVENT_BUS.register(DimensionMisc.class);
+//        DimensionAPI.serverDimensionsLoadEvent.register(DimensionMisc::addMissingVanillaDimensions); //TODO Reimplement this !DONE
+    }
+
+    @SubscribeEvent
+    public static void onServerDimensionsLoad(ServerDimensionsLoadEvent event) {
+        addMissingVanillaDimensions(event.generatorOptions, event.registryManager);
     }
     
     // When DFU does not recognize a mod dimension (in level.dat) it will throw an error

@@ -11,4 +11,6 @@ public interface IEClientPlayNetworkHandler {
     Map getPlayerListEntries();
     
     void setPlayerListEntries(Map value);
+    
+    void portal_setRegistryManager(RegistryAccess.Frozen arg);
 }

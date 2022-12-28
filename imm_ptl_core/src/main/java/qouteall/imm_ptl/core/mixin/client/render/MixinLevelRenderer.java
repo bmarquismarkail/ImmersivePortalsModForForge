@@ -392,6 +392,25 @@ public abstract class MixinLevelRenderer implements IEWorldRenderer {
         PoseStack matrixStack,
         MultiBufferSource vertexConsumerProvider
     ) {
+        Camera camera = Minecraft.getInstance().gameRenderer.getMainCamera();
+        if (entity == camera.getEntity() && WorldRenderInfo.isRendering()) { //player
+            if (CrossPortalEntityRenderer.shouldRenderEntityNow(entity)) {
+                MyGameRenderer.renderPlayerItself(() -> {
+                    if (CrossPortalEntityRenderer.shouldRenderPlayerNormally(entity)) {
+                        CrossPortalEntityRenderer.beforeRenderingEntity(entity, matrixStack);
+                        renderEntity(
+                            entity,
+                            cameraX, cameraY, cameraZ,
+                            tickDelta,
+                            matrixStack, vertexConsumerProvider
+                        );
+                        CrossPortalEntityRenderer.afterRenderingEntity(entity);
+                    }
+                });
+                return;
+            }
+        }
+        
         CrossPortalEntityRenderer.beforeRenderingEntity(entity, matrixStack);
         renderEntity(
             entity,

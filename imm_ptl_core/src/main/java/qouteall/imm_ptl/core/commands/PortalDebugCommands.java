@@ -409,47 +409,28 @@ public class PortalDebugCommands {
                 return 0;
             })
         );
-
-//        builder.then(Commands
-//            .literal("print_biome_list")
-//            .requires(serverCommandSource -> serverCommandSource.hasPermission(3))
-//            .executes(context -> {
-//                Registry<Biome> biomes = MiscHelper.getServer().registryAccess().registryOrThrow(Registries.BIOME);
-//
-//                StringBuilder builder1 = new StringBuilder();
-//                for (ResourceLocation resourceLocation : biomes.keySet()) {
-//                    builder1.append("\"");
-//                    builder1.append(resourceLocation);
-//                    builder1.append("\",\n");
-//                }
-//
-//                Helper.log(builder1.toString());
-//
-//                return 0;
-//            })
-//        );
-
-//        builder.then(Commands
-//            .literal("print_generator_config")
-//            .requires(serverCommandSource -> serverCommandSource.hasPermission(3))
-//            .executes(context -> {
-//                MiscHelper.getServer().getAllLevels().forEach(world -> {
-//                    ChunkGenerator generator = world.getChunkSource().getGenerator();
-//                    Helper.log(world.dimension().location());
-//                    Helper.log(McHelper.serializeToJson(generator, ChunkGenerator.CODEC));
-//                    Helper.log(McHelper.serializeToJson(
-//                        world.dimensionType(),
-//                        DimensionType.DIRECT_CODEC.stable()
-//                    ));
-//                });
-//
-//                WorldGenSettings options = MiscHelper.getServer().getWorldData().worldGenSettings();
-//
-//                Helper.log(McHelper.serializeToJson(options, WorldGenSettings.CODEC));
-//
-//                return 0;
-//            })
-//        );
+        
+        builder.then(Commands
+            .literal("print_generator_config")
+            .requires(serverCommandSource -> serverCommandSource.hasPermission(3))
+            .executes(context -> {
+                MiscHelper.getServer().getAllLevels().forEach(world -> {
+                    ChunkGenerator generator = world.getChunkSource().getGenerator();
+                    Helper.log(world.dimension().location());
+                    Helper.log(McHelper.serializeToJson(generator, ChunkGenerator.CODEC));
+                    Helper.log(McHelper.serializeToJson(
+                        world.dimensionType(),
+                        DimensionType.DIRECT_CODEC.stable()
+                    ));
+                });
+                
+                WorldGenSettings options = MiscHelper.getServer().getWorldData().worldGenSettings();
+                
+                Helper.log(McHelper.serializeToJson(options, WorldGenSettings.CODEC));
+                
+                return 0;
+            })
+        );
         
         builder.then(Commands
             .literal("nofog_enable")

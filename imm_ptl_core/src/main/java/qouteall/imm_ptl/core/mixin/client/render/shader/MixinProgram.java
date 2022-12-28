@@ -22,7 +22,8 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
-@Mixin(value = Program.class)
+// 800 priority to avoid clash with iris
+@Mixin(value = Program.class, priority = 800)
 public class MixinProgram {
     // The redirect uses method arguments.
     // Iris also injects that method and uses local capture, so cannot overwrite.

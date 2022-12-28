@@ -32,6 +32,7 @@ public class MixinRenderSystem_Clipping {
                     FrontClipping.updateClippingEquationUniformForCurrentShader(false);
                 }
                 else {
+                    // TODO check will it fix Intel videocard issue
                     FrontClipping.unsetClippingUniform();
                 }
             }
